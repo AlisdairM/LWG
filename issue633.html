@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 633: Return clause mentions undefined "type()"</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#NAD Editorial">NAD Editorial</a> status.</em></p>
+<h3><a name="633" href="lwg-closed.html#633">633</a>. Return clause mentions undefined "type()"</h3>
+<p><b>Section:</b> 22.10.17.3.6 <a href="https://wg21.link/func.wrap.func.targ">[func.wrap.func.targ]</a> <b>Status:</b> <a href="lwg-active.html#NAD Editorial">NAD Editorial</a>
+ <b>Submitter:</b> Daniel Kr&uuml;gler <b>Opened:</b> 2007-02-03 <b>Last modified:</b> 2016-01-28</p>
+<p><b>Priority: </b>Not Prioritized
+</p>
+<p><b>View all other</b> <a href="lwg-index.html#func.wrap.func.targ">issues</a> in [func.wrap.func.targ].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#NAD Editorial">NAD Editorial</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+22.10.17.3.6 <a href="https://wg21.link/func.wrap.func.targ">[func.wrap.func.targ]</a>, p4 says:
+</p>
+<blockquote><p>
+<i>Returns:</i> If <tt>type() == typeid(T)</tt>, a pointer to the stored
+function target; otherwise a null pointer.
+</p></blockquote>
+
+<ol>
+<li>
+There exists neither a type, a typedef <tt>type</tt>, nor member
+function <tt>type()</tt> in class template function nor in the global or
+<tt>std</tt> namespace.
+</li>
+<li>
+Assuming that <tt>type</tt> should have been <tt>target_type()</tt>,
+this description would lead to false results, if <tt>T = <i>cv</i>
+void</tt> due to returns clause 22.10.17.3.6 <a href="https://wg21.link/func.wrap.func.targ">[func.wrap.func.targ]</a>, p1.
+</li>
+</ol>
+
+
+
+<p id="res-633"><b>Proposed resolution:</b></p>
+<p>
+Change 22.10.17.3.6 <a href="https://wg21.link/func.wrap.func.targ">[func.wrap.func.targ]</a>, p4:
+</p>
+
+<blockquote><p>
+<i>Returns:</i> If <tt><del>type()</del> <ins>target_type()</ins> == typeid(T) <ins>&amp;&amp; typeid(T) !=
+typeid(void)</ins></tt>, a pointer to the stored function target;
+otherwise a null pointer.
+</p></blockquote>
+
+<p><i>[
+Pete: Agreed. It's editorial, so I'll fix it.
+]</i></p>
+
+
+
+
+
+
+
+</body>
+</html>

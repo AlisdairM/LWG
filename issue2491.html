@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 2491: std::less&lt;T*&gt; in constant expression</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#New">New</a> status.</em></p>
+<h3><a name="2491" href="lwg-active.html#2491">2491</a>. <tt>std::less&lt;T*&gt;</tt> in constant expression</h3>
+<p><b>Section:</b> 22.10.8 <a href="https://wg21.link/comparisons">[comparisons]</a> <b>Status:</b> <a href="lwg-active.html#New">New</a>
+ <b>Submitter:</b> Agust&iacute;n K-ballo Berg&eacute; <b>Opened:</b> 2015-04-01 <b>Last modified:</b> 2021-04-10</p>
+<p><b>Priority: </b>3
+</p>
+<p><b>View other</b> <a href="lwg-index-open.html#comparisons">active issues</a> in [comparisons].</p>
+<p><b>View all other</b> <a href="lwg-index.html#comparisons">issues</a> in [comparisons].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#New">New</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+It is not entirely clear if and when the specializations of <tt>std::less</tt> (and friends) for pointer types 
+can be used in a constant expression. Consider the following code:
+</p>
+<blockquote><pre>
+#include &lt;functional&gt;
+
+struct foo {};
+foo x, y;
+constexpr bool b = std::less&lt;foo*&gt;{}(&amp;x, &amp;y); // [1]
+
+foo z[] = {{}, {}};
+constexpr bool ba = std::less&lt;foo*&gt;{}(&amp;z[0], &amp;z[1]); // [2]
+</pre></blockquote>
+<p>
+Comparing the address of unrelated objects is not a constant expression since the result is unspecified, so 
+it could be expected for [1] to fail and [2] to succeed. However, <tt>std::less</tt> specialization for pointer 
+types is well-defined and yields a total order, so it could just as well be expected for [1] to succeed. Finally, 
+since the implementation of such specializations is not mandated, [2] could fail as well (This could happen, if
+an implementation would provide such a specialization and if that would use built-in functions that would not be
+allowed in constant expressions, for example). In any case, the standard should be clear so as to avoid 
+implementation-defined <tt>constexpr</tt>-ness.
+</p>
+
+<p><i>[2017-01-22, Jens provides rationale and proposed wording]</i></p>
+
+<p>
+<tt>std::less&lt;T*&gt;</tt> is required to deliver a total order on pointers.
+However, the layout of global objects is typically determined
+by the linker, not the compiler, so requiring <tt>std::less&lt;T*&gt;</tt> to
+provide an ordering at compile-time that is consistent with
+run-time would need results from linking to feed back to
+the compiler, something that C++ has traditionally not required.
+</p>
+
+<strong>Previous resolution [SUPERSEDED]:</strong>
+<blockquote class="note">
+<p>This wording is relative to <a href="https://wg21.link/n4618">N4618</a>.</p>
+
+<ol>
+<li><p>Add at the end of 22.10.8 <a href="https://wg21.link/comparisons">[comparisons]</a>:</p>
+<blockquote>
+<p>
+-2- For templates <tt>less</tt>, <tt>greater</tt>, <tt>less_equal</tt>, and <tt>greater_equal</tt>, [&hellip;], 
+if the call operator calls a built-in operator comparing pointers, the call operator yields a strict total order 
+that is consistent among those specializations and is also consistent with the partial order imposed by those 
+built-in operators. <ins>Relational comparisons of pointer values are not required to be usable as constant expressions.</ins>
+</p>
+</blockquote>
+</li>
+</ol>
+</blockquote>
+
+<p><i>[2021-04-05; Jiang An comments and provides alternative wording]</i></p>
+
+<p>
+The libc++ and MSVC STL implementations only support flat address spaces, and always use comparison operators. 
+The libstdc++ implementation casts pointer values to <tt>uintptr_t</tt> if the direct comparison result is unusable 
+in constant evaluation.
+<p/>
+So, I think that we can specify that the implementation-defined strict total order (3.27 <a href="https://wg21.link/defns.order.ptr">[defns.order.ptr]</a>) 
+generates a core constant expression if and only if the corresponding underlying comparison expression comparing 
+pointer values is a core constant expression. No any other case should be a core constant expression, otherwise 
+we should also make the underlying comparison expression a core constant expression.
+<p/>
+IMO the proposed resolution is already implemented in libc++, libstdc++, and MSVC STL, and implementable on compilers 
+that either support flat address spaces only or have implemented intrinsics needed for transparent comparison operators 
+and <tt>std::is_constant_evaluated</tt>.
+</p>
+
+
+
+<p id="res-2491"><b>Proposed resolution:</b></p>
+<p>This wording is relative to <a href="https://wg21.link/n4885">N4885</a>.</p>
+
+<ol>
+<li><p>Add at the end of 22.10.8 <a href="https://wg21.link/comparisons">[comparisons]</a> p2:</p>
+<blockquote>
+<p>
+-2- For templates <tt>less</tt>, <tt>greater</tt>, <tt>less_equal</tt>, and <tt>greater_equal</tt>, the specializations 
+for any pointer type yield a result consistent with the implementation-defined strict total order over pointers 
+(3.27 <a href="https://wg21.link/defns.order.ptr">[defns.order.ptr]</a>). [<i>Note 1</i>: If <tt>a &lt; b</tt> is well-defined for pointers <tt>a</tt> and 
+<tt>b</tt> of type <tt>P</tt>, then <tt>(a &lt; b) == less&lt;P&gt;()(a, b)</tt>, <tt>(a &gt; b) == greater&lt;P&gt;()(a, b)</tt>, 
+and so forth. &mdash; <i>end note</i>] For template specializations <tt>less&lt;void&gt;</tt>, <tt>greater&lt;void&gt;</tt>, 
+<tt>less_equal&lt;void&gt;</tt>, and <tt>greater_equal&lt;void&gt;</tt>, if the call operator calls a built-in operator 
+comparing pointers, the call operator yields a result consistent with the implementation-defined strict total order over 
+pointers. <ins>A comparison result of pointer values is a core constant expression if and only if the corresponding 
+built-in comparison expression is a core constant expression.</ins>
+</p>
+</blockquote>
+</li>
+
+<li><p>Add at the end of 22.10.9 <a href="https://wg21.link/range.cmp">[range.cmp]</a> (3.1):</p>
+<blockquote>
+<p>
+-3- <i>Effects:</i>
+</p>
+<ol style="list-style-type: none">
+<li><p>(3.1) &mdash; If the expression <tt>std::forward&lt;T&gt;(t) == std::forward&lt;U&gt;(u)</tt> results in a call 
+to a built-in operator <tt>==</tt> comparing pointers: returns <tt>false</tt> if either (the converted value of) <tt>t</tt> 
+precedes <tt>u</tt> or <tt>u</tt> precedes <tt>t</tt> in the implementation-defined strict total order over pointers 
+(3.27 <a href="https://wg21.link/defns.order.ptr">[defns.order.ptr]</a>) and otherwise <tt>true</tt>. <ins>The result is a core constant expression if and only 
+if <tt>std::forward&lt;T&gt;(t) == std::forward&lt;U&gt;(u)</tt> is a core constant expression.</ins></p></li>
+<li><p>(3.2) &mdash; Otherwise, equivalent to: <tt>return std::forward&lt;T&gt;(t) == std::forward&lt;U&gt;(u);</tt></p></li>
+</ol>
+</blockquote>
+</li>
+
+<li><p>Add at the end of 22.10.9 <a href="https://wg21.link/range.cmp">[range.cmp]</a> (7.1):</p>
+<blockquote>
+<p>
+-7- <i>Effects:</i>
+</p>
+<ol style="list-style-type: none">
+<li><p>(7.1) &mdash; If the expression <tt>std::forward&lt;T&gt;(t) &lt; std::forward&lt;U&gt;(u)</tt> results in a call 
+to a built-in operator <tt>&lt;</tt> comparing pointers: returns <tt>true</tt> if (the converted value of) <tt>t</tt> 
+precedes <tt>u</tt> in the implementation-defined strict total order over pointers (3.27 <a href="https://wg21.link/defns.order.ptr">[defns.order.ptr]</a>) and 
+otherwise <tt>false</tt>. <ins>The result is a core constant expression if and only 
+if <tt>std::forward&lt;T&gt;(t) &lt; std::forward&lt;U&gt;(u)</tt> is a core constant expression.</ins></p></li>
+<li><p>(7.2) &mdash; Otherwise, equivalent to: <tt>return std::forward&lt;T&gt;(t) &lt; std::forward&lt;U&gt;(u);</tt></p></li>
+</ol>
+</blockquote>
+</li>
+
+<li><p>Add at the end of 22.10.8.8 <a href="https://wg21.link/comparisons.three.way">[comparisons.three.way]</a> (3.1):</p>
+<blockquote>
+<p>
+-3- <i>Effects:</i>
+</p>
+<ol style="list-style-type: none">
+<li><p>(3.1) &mdash; If the expression <tt>std::forward&lt;T&gt;(t) &lt;=&gt; std::forward&lt;U&gt;(u)</tt> results in a call 
+to a built-in operator <tt>&lt;=&gt;</tt> comparing pointers: returns <tt>strong_ordering::less</tt> if (the converted value 
+of) <tt>t</tt> precedes <tt>u</tt> in the implementation-defined strict total order over pointers (3.27 <a href="https://wg21.link/defns.order.ptr">[defns.order.ptr]</a>), 
+<tt>strong_ordering::greater</tt> if <tt>u</tt> precedes <tt>t</tt>, and otherwise <tt>strong_ordering::equal</tt>. 
+<ins>The result is a core constant expression if and only if <tt>std::forward&lt;T&gt;(t) &lt;=&gt; std::forward&lt;U&gt;(u)</tt> 
+is a core constant expression.</ins></p></li>
+<li><p>(3.2) &mdash; Otherwise, equivalent to: <tt>return std::forward&lt;T&gt;(t) &lt;=&gt; std::forward&lt;U&gt;(u);</tt></p></li>
+</ol>
+</blockquote>
+</li>
+</ol>
+
+
+
+
+
+</body>
+</html>

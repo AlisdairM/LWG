@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 2413: assert macro is overconstrained</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#NAD">NAD</a> status.</em></p>
+<h3><a name="2413" href="lwg-closed.html#2413">2413</a>. <tt>assert</tt> macro is overconstrained</h3>
+<p><b>Section:</b> 19.3 <a href="https://wg21.link/assertions">[assertions]</a> <b>Status:</b> <a href="lwg-active.html#NAD">NAD</a>
+ <b>Submitter:</b> David Krauss <b>Opened:</b> 2014-06-25 <b>Last modified:</b> 2023-06-13</p>
+<p><b>Priority: </b>4
+</p>
+<p><b>View all other</b> <a href="lwg-index.html#assertions">issues</a> in [assertions].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#NAD">NAD</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+When <tt>NDEBUG</tt> is defined, <tt>assert</tt> must expand exactly to the token sequence <tt>((void)0)</tt>, with no 
+whitespace (C99 &sect;7.2/1 and also C11 &sect;7.2/1). This is a lost opportunity to pass the condition along to the optimizer.
+<p/>
+The user may observe the token sequence using the stringize operator or discriminate it by making a matching <tt>#define</tt> 
+directive. There is little chance of practical code doing such things. It's reasonable to allow any expansion that is a <tt>void</tt> 
+expression with no side effects or semantic requirements, for example, an extension keyword or an attribute-specifier finagled 
+into the context.
+<p/>
+Conforming optimizations would still be limited to treating the condition as hint, not a requirement. Nonconformance on this 
+point is quite reasonable though, given user preferences. Anyway, it shouldn't depend on preprocessor quirks.
+<p/>
+As for current practice, Darwin OS <tt>&lt;assert.h&gt;</tt> provides a GCC-style compiler hint <tt>__builtin_expect</tt> but only in 
+debug mode. Shouldn't release mode preserve hints?
+<p/>
+Daniel:
+<p/>
+The corresponding resolution should take care not to conflict with the intention behind LWG <a href="lwg-defects.html#2234">2234</a>.
+</p>
+<p><i>[2023-06-13, Varna; Status changed: New &rarr; NAD.]</i></p>
+
+<p>
+Only observable by stringifying an assert expression anyway,
+so arguably allowed by implementations anyway.
+Needs a paper to make changes here, or incorporate into <a href="https://wg21.link/P2884">P2884</a>.
+</p>
+
+
+<p id="res-2413"><b>Proposed resolution:</b></p>
+
+
+
+
+
+</body>
+</html>

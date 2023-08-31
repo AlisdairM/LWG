@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 351: unary_negate and binary_negate: struct or class?</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#NAD Editorial">NAD Editorial</a> status.</em></p>
+<h3><a name="351" href="lwg-closed.html#351">351</a>. unary_negate and binary_negate: struct or class?</h3>
+<p><b>Section:</b> 22.10 <a href="https://wg21.link/function.objects">[function.objects]</a> <b>Status:</b> <a href="lwg-active.html#NAD Editorial">NAD Editorial</a>
+ <b>Submitter:</b> Dale Riley <b>Opened:</b> 2001-11-12 <b>Last modified:</b> 2016-01-28</p>
+<p><b>Priority: </b>Not Prioritized
+</p>
+<p><b>View all other</b> <a href="lwg-index.html#function.objects">issues</a> in [function.objects].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#NAD Editorial">NAD Editorial</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+In 22.10 <a href="https://wg21.link/function.objects">[function.objects]</a> the header &lt;functional&gt; synopsis declares
+the unary_negate and binary_negate function objects as struct.
+However in  [negators] the unary_negate and binary_negate
+function objects are defined as class.  Given the context, they are
+not "basic function objects" like negate, so this is either a typo or
+an editorial oversight.
+</p>
+
+<p><i>[Taken from comp.std.c++]</i></p>
+
+
+
+<p id="res-351"><b>Proposed resolution:</b></p>
+<p>Change the synopsis to reflect the useage in  [negators]</p>
+
+<p><i>[Cura&ccedil;ao: Since the language permits &quot;struct&quot;, the LWG
+views this as NAD. They suggest, however, that the Project Editor
+might wish to make the change as editorial.]</i></p>
+
+
+
+
+
+
+
+</body>
+</html>

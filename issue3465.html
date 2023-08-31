@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 3465: compare_partial_order_fallback requires F &lt; E</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#WP">WP</a> status.</em></p>
+<h3><a name="3465" href="lwg-defects.html#3465">3465</a>. <tt>compare_partial_order_fallback</tt> requires <tt>F &lt; E</tt></h3>
+<p><b>Section:</b> 17.11.6 <a href="https://wg21.link/cmp.alg">[cmp.alg]</a> <b>Status:</b> <a href="lwg-active.html#WP">WP</a>
+ <b>Submitter:</b> Stephan T. Lavavej <b>Opened:</b> 2020-07-18 <b>Last modified:</b> 2020-11-09</p>
+<p><b>Priority: </b>0
+</p>
+<p><b>View other</b> <a href="lwg-index-open.html#cmp.alg">active issues</a> in [cmp.alg].</p>
+<p><b>View all other</b> <a href="lwg-index.html#cmp.alg">issues</a> in [cmp.alg].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#WP">WP</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+<tt>compare_partial_order_fallback</tt> uses three expressions, but requires only two. The decayed types 
+of <tt>E</tt> and <tt>F</tt> are required to be identical, but variations in constness might make a difference.
+</p>
+
+<p><i>[2020-07-26; Reflector prioritization]</i></p>
+
+<p>
+Set priority to 0 and status to Tentatively Ready after seven votes in favour during reflector discussions.
+</p>
+<p><i>[2020-11-09 Approved In November virtual meeting. Status changed: Tentatively Ready &rarr; WP.]</i></p>
+
+
+
+<p id="res-3465"><b>Proposed resolution:</b></p>
+<p>
+This wording is relative to <a href="https://wg21.link/n4861">N4861</a>. 
+</p>
+
+<ol>
+<li><p>Modify 17.11.6 <a href="https://wg21.link/cmp.alg">[cmp.alg]</a> as indicated:</p>
+
+<blockquote>
+<p>
+-6- The name <tt>compare_partial_order_fallback</tt> denotes a customization point object 
+(16.3.3.3.5 <a href="https://wg21.link/customization.point.object">[customization.point.object]</a>). Given subexpressions <tt>E</tt> and <tt>F</tt>, 
+the expression <tt>compare_partial_order_fallback(E, F)</tt> is expression-equivalent
+( [defns.expression-equivalent]) to:
+</p>
+<ol style="list-style-type: none">
+<li><p>(6.1) &mdash; If the decayed types of <tt>E</tt> and <tt>F</tt> differ, 
+<tt>compare_partial_order_fallback(E, F)</tt> is ill-formed.</p></li>
+<li><p>(6.2) &mdash; Otherwise, <tt>partial_order(E, F)</tt> if it is a well-formed expression.</p></li>
+<li><p>(6.3) &mdash; Otherwise, if the expressions <tt>E == F</tt><ins>,</ins> <del>and</del> 
+<tt>E &lt; F</tt><ins>, and <tt>F &lt; E</tt></ins> are <ins>all</ins><del>both</del> well-formed 
+and convertible to <tt>bool</tt>,</p>
+<blockquote>
+<pre>
+E == F ? partial_ordering::equivalent :
+E &lt; F  ? partial_ordering::less :
+F &lt; E  ? partial_ordering::greater :
+         partial_ordering::unordered
+</pre>
+</blockquote>
+<p>
+except that <tt>E</tt> and <tt>F</tt> are evaluated only once.
+</p>
+</li>
+<li><p>(6.4) &mdash; Otherwise, <tt>compare_partial_order_fallback(E, F)</tt> is ill-formed.</p></li></ol>
+</blockquote>
+</li>
+</ol>
+
+
+
+
+
+</body>
+</html>

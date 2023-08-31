@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 627: Low memory and exceptions</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#NAD">NAD</a> status.</em></p>
+<h3><a name="627" href="lwg-closed.html#627">627</a>. Low memory and exceptions</h3>
+<p><b>Section:</b> 17.6.3.2 <a href="https://wg21.link/new.delete.single">[new.delete.single]</a> <b>Status:</b> <a href="lwg-active.html#NAD">NAD</a>
+ <b>Submitter:</b> P.J. Plauger <b>Opened:</b> 2007-01-23 <b>Last modified:</b> 2016-01-28</p>
+<p><b>Priority: </b>Not Prioritized
+</p>
+<p><b>View other</b> <a href="lwg-index-open.html#new.delete.single">active issues</a> in [new.delete.single].</p>
+<p><b>View all other</b> <a href="lwg-index.html#new.delete.single">issues</a> in [new.delete.single].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#NAD">NAD</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+I recognize the need for nothrow guarantees in the exception reporting
+mechanism, but I strongly believe that implementors also need an escape hatch
+when memory gets really low. (Like, there's not enough heap to construct and
+copy exception objects, or not enough stack to process the throw.) I'd like to
+think we can put this escape hatch in 17.6.3.2 <a href="https://wg21.link/new.delete.single">[new.delete.single]</a>,
+<tt>operator new</tt>, but I'm not sure how to do it. We need more than a
+footnote, but the wording has to be a bit vague. The idea is that if
+<tt>new</tt> can't allocate something sufficiently small, it has the right to
+<tt>abort</tt>/call <tt>terminate</tt>/call <tt>unexpected</tt>.
+</p>
+
+<p><i>[
+Bellevue: NAD.  1.4p2 specifies a program must behave correctly "within
+its resource limits", so no further escape hatch is necessary.
+]</i></p>
+
+
+
+<p id="res-627"><b>Proposed resolution:</b></p>
+<p>
+</p>
+
+
+
+
+
+</body>
+</html>

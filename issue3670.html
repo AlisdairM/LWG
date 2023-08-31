@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 3670: Cpp17InputIterators don't have integer-class difference types</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#WP">WP</a> status.</em></p>
+<h3><a name="3670" href="lwg-defects.html#3670">3670</a>. <i>Cpp17InputIterator</i>s don't have integer-class difference types</h3>
+<p><b>Section:</b> 26.6.4.3 <a href="https://wg21.link/range.iota.iterator">[range.iota.iterator]</a> <b>Status:</b> <a href="lwg-active.html#WP">WP</a>
+ <b>Submitter:</b> Casey Carter <b>Opened:</b> 2022-02-04 <b>Last modified:</b> 2022-07-25</p>
+<p><b>Priority: </b>Not Prioritized
+</p>
+<p><b>View all other</b> <a href="lwg-index.html#range.iota.iterator">issues</a> in [range.iota.iterator].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#WP">WP</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+26.6.4.3 <a href="https://wg21.link/range.iota.iterator">[range.iota.iterator]</a> defines 
+</p>
+<blockquote><pre>
+using iterator_category = input_iterator_tag; <i>// present only if W models incrementable</i>
+</pre></blockquote>
+<p>
+but when <tt>difference_type</tt> is an integer-class type the iterator does not meet the 
+<i>Cpp17InputIterator</i> requirements.
+</p>
+
+<p><i>[2022-02-07; Daniel comments]</i></p>
+
+<p>
+As requested by LWG <a href="lwg-defects.html#3376">3376</a> and wording implemented by <a href="https://wg21.link/P2393R1">P2393R1</a>,
+integer-class types are no longer required to have class type.
+</p>
+
+<p>
+<strong>Previous resolution [SUPERSEDED]:</strong>
+</p>
+<blockquote class="note">
+<p>
+This wording is relative to <a href="https://wg21.link/N4901">N4901</a>.
+</p>
+
+<ol>
+<li><p>Modify 26.6.4.3 <a href="https://wg21.link/range.iota.iterator">[range.iota.iterator]</a>, class <tt>iota_view::<i>iterator</i></tt> synopsis, as indicated:</p>
+
+<blockquote>
+<pre>
+namespace std::ranges {
+  template&lt;weakly_incrementable W, semiregular Bound&gt;
+    requires <i>weakly-equality-comparable-with</i>&lt;W, Bound&gt; &amp;&amp; copyable&lt;W&gt;
+  struct iota_view&lt;W, Bound&gt;::<i>iterator</i> {
+    [&hellip;]
+    using iterator_category = input_iterator_tag; <i>// present only if W models incrementable <ins>and</ins></i> 
+                                                  <i><ins>// IOTA-DIFF-T(W) is not a class type</ins></i>
+    using value_type = W;
+    using difference_type = <i>IOTA-DIFF-T</i>(W);
+    [&hellip;]
+  };
+}
+</pre>
+</blockquote>
+</li>
+</ol>
+</blockquote>
+
+<p><i>[2022-02-07; Casey Carter provides improved wording]</i></p>
+
+
+<p><i>[2022-03-04; Reflector poll]</i></p>
+
+<p>
+Set status to Tentatively Ready after seven votes in favour during reflector poll.
+</p>
+
+<p><i>[2022-07-15; LWG telecon: move to Ready]</i></p>
+
+
+<p><i>[2022-07-25 Approved at July 2022 virtual plenary. Status changed: Ready &rarr; WP.]</i></p>
+
+
+
+<p id="res-3670"><b>Proposed resolution:</b></p>
+<p>
+This wording is relative to <a href="https://wg21.link/N4901">N4901</a>.
+</p>
+
+<ol>
+<li><p>Modify 26.6.4.3 <a href="https://wg21.link/range.iota.iterator">[range.iota.iterator]</a>, class <tt>iota_view::<i>iterator</i></tt> synopsis, as indicated:</p>
+
+<blockquote>
+<pre>
+namespace std::ranges {
+  template&lt;weakly_incrementable W, semiregular Bound&gt;
+    requires <i>weakly-equality-comparable-with</i>&lt;W, Bound&gt; &amp;&amp; copyable&lt;W&gt;
+  struct iota_view&lt;W, Bound&gt;::<i>iterator</i> {
+    [&hellip;]
+    using iterator_category = input_iterator_tag; <i>// present only if W models incrementable <ins>and</ins></i> 
+                                                  <i><ins>// IOTA-DIFF-T(W) is an integral type</ins></i>
+    using value_type = W;
+    using difference_type = <i>IOTA-DIFF-T</i>(W);
+    [&hellip;]
+  };
+}
+</pre>
+</blockquote>
+</li>
+</ol>
+
+
+
+
+
+</body>
+</html>

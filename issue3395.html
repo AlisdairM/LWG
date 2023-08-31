@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 3395: Definition for three-way comparison needs to be updated (US 152)</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#C++20">C++20</a> status.</em></p>
+<h3><a name="3395" href="lwg-defects.html#3395">3395</a>. Definition for three-way comparison needs to be updated (US 152)</h3>
+<p><b>Section:</b> 99 [defns.comparison] <b>Status:</b> <a href="lwg-active.html#C++20">C++20</a>
+ <b>Submitter:</b> Jeff Garland <b>Opened:</b> 2020-02-10 <b>Last modified:</b> 2021-02-25</p>
+<p><b>Priority: </b>1
+</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#C++20">C++20</a> status.</p>
+<p><b>Discussion:</b></p>
+<p><b>Addresses <a href="https://github.com/cplusplus/nbballot/issues/151">US 152</a></b></p>
+<p>
+This definition in 99 [defns.comparison] should be updated to accommodate the new 3-way comparison operator 
+(7.6.8 <a href="https://wg21.link/expr.spaceship">[expr.spaceship]</a>) as well.
+</p>
+<p><i>[2020-02 Moved to Immediate on Tuesday in Prague.]</i></p>
+
+
+
+<p id="res-3395"><b>Proposed resolution:</b></p>
+<p>This wording is relative to <a href="https://wg21.link/n4849">N4849</a>.</p>
+
+<ol>
+<li><p>Modify 99 [defns.comparison] as indicated:</p>
+
+<blockquote>
+<p>
+<b>comparison function</b>
+<p/>
+operator function (12.4 <a href="https://wg21.link/over.oper">[over.oper]</a>) for any of the equality (7.6.10 <a href="https://wg21.link/expr.eq">[expr.eq]</a>)<ins>,</ins> 
+<del>or</del> relational (7.6.9 <a href="https://wg21.link/expr.rel">[expr.rel]</a>)<ins>, or three-way comparison 
+(7.6.8 <a href="https://wg21.link/expr.spaceship">[expr.spaceship]</a>)</ins> operators
+</p>
+</blockquote>
+</li>
+
+</ol>
+
+
+
+
+
+</body>
+</html>

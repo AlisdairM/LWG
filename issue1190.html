@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 1190: Setting the maximum load factor should return the previous value</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#NAD">NAD</a> status.</em></p>
+<h3><a name="1190" href="lwg-closed.html#1190">1190</a>. Setting the maximum load factor should return the previous value</h3>
+<p><b>Section:</b> 24.2.8 <a href="https://wg21.link/unord.req">[unord.req]</a>, 24.5 <a href="https://wg21.link/unord">[unord]</a> <b>Status:</b> <a href="lwg-active.html#NAD">NAD</a>
+ <b>Submitter:</b> Matt Austern <b>Opened:</b> 2009-08-10 <b>Last modified:</b> 2016-01-28</p>
+<p><b>Priority: </b>Not Prioritized
+</p>
+<p><b>View other</b> <a href="lwg-index-open.html#unord.req">active issues</a> in [unord.req].</p>
+<p><b>View all other</b> <a href="lwg-index.html#unord.req">issues</a> in [unord.req].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#NAD">NAD</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+The unordered associative container requirements table specifies that
+<tt>a.set_max_load_factor(z)</tt> has return type <tt>void</tt>. However, there is a
+useful piece of information to return: the previous value. Users who
+don't need it can always ignore it.
+</p>
+
+
+<p><i>[
+2010 Rapperswil:
+]</i></p>
+
+
+<blockquote><p>
+The benefit seems minor, while breaking with the getter/setter idiom these overloads support.
+
+Move to Tentatively NAD.
+</p></blockquote>
+
+<p><i>[
+Moved to NAD at 2010-11 Batavia
+]</i></p>
+
+
+
+
+<p id="res-1190"><b>Proposed resolution:</b></p>
+<p>
+In the unordered associative container requirements table, change:
+</p>
+
+<blockquote>
+<table border="1">
+<caption>Table 87 &mdash; Unordered associative container requirements
+(in addition to container)</caption>
+
+<tr>
+<th>Expression</th><th>Return type</th><th>Assertion/note pre-/post-condition</th>
+<th>Complexity</th>
+</tr>
+
+<tr>
+<td><tt>a.max_load_factor(z)</tt></td>
+<td><tt><del>void</del> <ins>float</ins></tt></td>
+<td>Pre: <tt>z</tt> shall be positive. Changes the container's maximum
+<del>load</del> load factor, using <tt>z</tt> as a hint.
+<ins>Returns: the previous value of
+<tt>a.max_load_factor()</tt>.</ins>
+</td>
+<td>
+constant
+</td>
+</tr>
+</table>
+</blockquote>
+
+<p>
+Change the return type of <tt>set_max_load_factor</tt>
+in the class synopses in 24.5.4 <a href="https://wg21.link/unord.map">[unord.map]</a>, 24.5.5 <a href="https://wg21.link/unord.multimap">[unord.multimap]</a>,  24.5.6 <a href="https://wg21.link/unord.set">[unord.set]</a>,
+and 24.5.7 <a href="https://wg21.link/unord.multiset">[unord.multiset]</a>.
+</p>
+
+<p>
+If issue <a href="lwg-closed.html#1188">1188</a> is also accepted, make the same changes for
+<tt>min_load_factor</tt>.
+</p>
+
+
+
+
+
+</body>
+</html>

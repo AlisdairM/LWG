@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 3188: istreambuf_iterator::pointer should not be unspecified</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#New">New</a> status.</em></p>
+<h3><a name="3188" href="lwg-active.html#3188">3188</a>. <tt>istreambuf_iterator::pointer</tt> should not be <i>unspecified</i></h3>
+<p><b>Section:</b> 25.6.4 <a href="https://wg21.link/istreambuf.iterator">[istreambuf.iterator]</a> <b>Status:</b> <a href="lwg-active.html#New">New</a>
+ <b>Submitter:</b> Jonathan Wakely <b>Opened:</b> 2019-02-21 <b>Last modified:</b> 2019-10-30</p>
+<p><b>Priority: </b>3
+</p>
+<p><b>View other</b> <a href="lwg-index-open.html#istreambuf.iterator">active issues</a> in [istreambuf.iterator].</p>
+<p><b>View all other</b> <a href="lwg-index.html#istreambuf.iterator">issues</a> in [istreambuf.iterator].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#New">New</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+The current working paper requires <tt>iterator_traits&lt;Iter&gt;::pointer</tt> to be <tt>void</tt> if <tt>Iter</tt> 
+doesn't define <tt>operator-&gt;</tt> (25.3.2.3 <a href="https://wg21.link/iterator.traits">[iterator.traits]</a>). We recently removed <tt>operator-&gt;</tt> 
+from <tt>istreambuf_iterator</tt> via LWG <a href="lwg-defects.html#2790">2790</a>, therefore either its <tt>pointer</tt> member should be 
+<tt>void</tt>, or there should be a partial specialization of <tt>iterator_traits</tt>. Do we want to change 
+<i>unspecified</i> to <tt>void</tt> in the class synopsis in [istreambuf.iterator]?
+</p>
+
+<p><i>[2019-03-03, Daniel provides concrete wording]</i></p>
+
+
+<p><i>[2019-03-05 Priority set to 3 after reflector discussion]</i></p>
+
+
+<p><i>[2019-03-05, Daniel comments]</i></p>
+
+<p>
+With the acceptance of <a href="https://wg21.link/p1252r2">P1252R2</a> the committee decided to deprecate <tt>operator-&gt;</tt> 
+of <tt>move_iterator</tt>, interestingly without mentioning what should happen with its current <tt>pointer</tt> typedef (which
+is equal to the template parameter <tt>Iterator</tt> and thus never <tt>void</tt>). Effectively this is a very similar situation 
+as for the here discussed <tt>istreambuf_iterator</tt> case and it seems attractive to me to solve both cases similarly. 
+</p>
+
+<p><i>[2019-10-30, Jonathan comments]</i></p>
+
+<p>
+Also, <tt>reverse_iterator::operator-&gt;()</tt> is now constrained and so not always defined, but 
+<tt>reverse_iterator::pointer</tt> is defined unconditionally.
+</p>
+
+
+<p id="res-3188"><b>Proposed resolution:</b></p>
+<p>This wording is relative to <a href="https://wg21.link/n4800">N4800</a>.</p>
+
+<ol>
+<li><p>Change class template <tt>istreambuf_iterator</tt> synopsis, 25.6.4 <a href="https://wg21.link/istreambuf.iterator">[istreambuf.iterator]</a>, as indicated:</p>
+
+<blockquote>
+<pre>
+template&lt;class charT, class traits = char_traits&lt;charT&gt;&gt;
+class istreambuf_iterator {
+public:
+  using iterator_category = input_iterator_tag;
+  using value_type        = charT;
+  using difference_type   = typename traits::off_type;
+  using pointer           = <ins>void</ins><del><i>unspecified</i></del>;
+  using reference         = charT;
+  [&hellip;]
+};
+</pre>
+</blockquote>
+</li>
+</ol>
+
+
+
+
+</body>
+</html>

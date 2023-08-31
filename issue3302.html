@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 3302: Range adaptor objects keys and values are unspecified</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#C++20">C++20</a> status.</em></p>
+<h3><a name="3302" href="lwg-defects.html#3302">3302</a>. Range adaptor objects <tt>keys</tt> and <tt>values</tt> are unspecified</h3>
+<p><b>Section:</b> 26.2 <a href="https://wg21.link/ranges.syn">[ranges.syn]</a> <b>Status:</b> <a href="lwg-active.html#C++20">C++20</a>
+ <b>Submitter:</b> Michel Morin <b>Opened:</b> 2019-10-04 <b>Last modified:</b> 2021-02-25</p>
+<p><b>Priority: </b>1
+</p>
+<p><b>View other</b> <a href="lwg-index-open.html#ranges.syn">active issues</a> in [ranges.syn].</p>
+<p><b>View all other</b> <a href="lwg-index.html#ranges.syn">issues</a> in [ranges.syn].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#C++20">C++20</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+This issue was submitted as editorial issue 
+<a href="https://github.com/cplusplus/draft/issues/3231">cplusplus/draft#3231</a> but had been
+classified as non-editorial.
+<p/>
+<tt>keys</tt> and <tt>values</tt> are listed in 26.2 <a href="https://wg21.link/ranges.syn">[ranges.syn]</a>, but not specified.
+It seems that <a href="https://wg21.link/p1035r7">P1035R7</a> forgot to specify them (as 
+<tt>elements&lt;0&gt;</tt> and <tt>elements&lt;1&gt;</tt>).
+</p>
+
+<p><i>[2019-10-31 Issue Prioritization]</i></p>
+
+<p>Priority to 1 after reflector discussion.</p>
+<p><i>[2019-11 Wednesday night issue processing in Belfast.]</i></p>
+
+<p>Status to Ready.</p>
+
+
+<p id="res-3302"><b>Proposed resolution:</b></p>
+<p>This wording is relative to <a href="https://wg21.link/n4830">N4830</a>.</p>
+
+<ol>
+<li><p>Modify 26.2 <a href="https://wg21.link/ranges.syn">[ranges.syn]</a>, header <tt>&lt;ranges&gt;</tt> synopsis, as indicated:</p>
+
+<blockquote>
+<pre>
+namespace std::ranges {
+  [&hellip;]
+  
+  template&lt;class R&gt;
+    using keys_view = elements_view&lt;all_view&lt;R&gt;, 0&gt;;
+  template&lt;class R&gt;
+    using values_view = elements_view&lt;all_view&lt;R&gt;, 1&gt;;
+  namespace views {
+    template&lt;size_t N&gt;
+      inline constexpr <i>unspecified</i> elements = <i>unspecified</i>;
+    inline constexpr <ins>auto</ins><del><i>unspecified</i></del> keys = <ins>elements&lt;0&gt;</ins><del><i>unspecified</i></del>;
+    inline constexpr <ins>auto</ins><del><i>unspecified</i></del> values = <ins>elements&lt;1&gt;</ins><del><i>unspecified</i></del>;
+  }  
+}
+[&hellip;]
+</pre>
+</blockquote>
+</li>
+
+</ol>
+
+
+
+
+
+</body>
+</html>

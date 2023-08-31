@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 3429: "models" should subsume like "satisfies"</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#New">New</a> status.</em></p>
+<h3><a name="3429" href="lwg-active.html#3429">3429</a>. "models" should subsume like "satisfies"</h3>
+<p><b>Section:</b> 16.4.5.11 <a href="https://wg21.link/res.on.requirements">[res.on.requirements]</a> <b>Status:</b> <a href="lwg-active.html#New">New</a>
+ <b>Submitter:</b> Tim Song <b>Opened:</b> 2020-04-07 <b>Last modified:</b> 2020-09-06</p>
+<p><b>Priority: </b>3
+</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#New">New</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+It has been pointed out both on the LWG reflector and as 
+<a href="https://github.com/cplusplus/draft/issues/3912">editorial issue 3912</a> that the
+definition of "models" added in <a href="https://wg21.link/p2101r0">P2101R0</a> 
+is not a model of clarity when a concept is defined in terms of other concepts.
+</p>
+
+<p><i>[2020-04-25 Issue Prioritization]</i></p>
+
+<p>Priority to 3 after reflector discussion. There was a temptation to resolve this as P0, but
+concerns were expressed that the "satisfied as part of the satisfaction" part was a bit confusing.</p>
+
+
+<p id="res-3429"><b>Proposed resolution:</b></p>
+<p>
+This wording is relative to <a href="https://wg21.link/n4861">N4861</a>.
+</p>
+
+<ol>
+<li><p>Modify 16.4.5.11 <a href="https://wg21.link/res.on.requirements">[res.on.requirements]</a> as indicated:</p>
+
+<blockquote>
+<p>
+-1- A sequence <tt>Args</tt> of template arguments is said to <em>model</em> a concept <tt>C</tt> 
+if<ins>:</ins> 
+<ol style="list-style-type: none">
+<li><p>(1.1) &mdash; <tt>Args</tt> satisfies <tt>C</tt> (13.5.3 <a href="https://wg21.link/temp.constr.decl">[temp.constr.decl]</a>)<ins>;</ins></p></li>
+<li><p>(1.2) &mdash; <del>and</del><ins><tt>Args</tt></ins> meets all semantic requirements (if any) 
+given in the specification of <tt>C</tt><ins>; and</ins></p></li>
+<li><p>(1.3) &mdash; <ins>every concept found to be satisfied as part of the satisfaction 
+determination above is also modeled</ins>.</p></li>
+</ol>
+</p>
+</blockquote>
+</li>
+</ol>
+
+
+
+
+</body>
+</html>

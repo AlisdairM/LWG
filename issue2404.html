@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 2404: mismatch()'s complexity needs to be updated</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#C++17">C++17</a> status.</em></p>
+<h3><a name="2404" href="lwg-defects.html#2404">2404</a>. <tt>mismatch()</tt>'s complexity needs to be updated</h3>
+<p><b>Section:</b> 27.6.12 <a href="https://wg21.link/mismatch">[mismatch]</a> <b>Status:</b> <a href="lwg-active.html#C++17">C++17</a>
+ <b>Submitter:</b> Stephan T. Lavavej <b>Opened:</b> 2014-06-14 <b>Last modified:</b> 2017-07-30</p>
+<p><b>Priority: </b>0
+</p>
+<p><b>View all other</b> <a href="lwg-index.html#mismatch">issues</a> in [mismatch].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#C++17">C++17</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3671.html">N3671</a> updated the complexities of 
+<tt>equal()</tt> and <tt>is_permutation()</tt>, but not <tt>mismatch()</tt>.
+</p>
+
+<p><i>[2014-06-16 Rapperswil]</i></p>
+
+<p>
+Move to Ready
+</p>
+
+
+
+<p id="res-2404"><b>Proposed resolution:</b></p>
+<p>This wording is relative to N3936.</p>
+
+<ol>
+<li><p>Change 27.6.12 <a href="https://wg21.link/mismatch">[mismatch]</a> p3 as indicated:</p>
+
+<blockquote>
+<p>
+-3- <i>Complexity</i>: At most <tt><ins>min(</ins>last1 - first1<ins>, last2 - first2)</ins></tt> applications of the 
+corresponding predicate.
+</p>
+</blockquote>
+</li>
+
+</ol>
+
+
+
+
+
+</body>
+</html>

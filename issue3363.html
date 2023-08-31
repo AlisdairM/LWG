@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 3363: drop_while_view should opt-out of sized_range</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#C++20">C++20</a> status.</em></p>
+<h3><a name="3363" href="lwg-defects.html#3363">3363</a>. <tt>drop_while_view</tt> should opt-out of <tt>sized_range</tt></h3>
+<p><b>Section:</b> 26.7.13.2 <a href="https://wg21.link/range.drop.while.view">[range.drop.while.view]</a> <b>Status:</b> <a href="lwg-active.html#C++20">C++20</a>
+ <b>Submitter:</b> Johel Ernesto Guerrero Pe&ntilde;a <b>Opened:</b> 2020-01-07 <b>Last modified:</b> 2021-02-25</p>
+<p><b>Priority: </b>1
+</p>
+<p><b>View all other</b> <a href="lwg-index.html#range.drop.while.view">issues</a> in [range.drop.while.view].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#C++20">C++20</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>If <tt>drop_while_view</tt>'s <tt>iterator_t</tt> and <tt>sentinel_t</tt>
+model <tt>forward_iterator</tt> and <tt>sized_sentinel_for</tt>, it will 
+incorrectly satisfy <tt>sized_range</tt> thanks to the size member function
+inherited from <tt>view_interface</tt>.</p>
+
+<p>Because it has to compute its <tt>begin()</tt>, it can never model 
+<tt>sized_range</tt> due to not meeting its non-amortized O(1) requirement.</p>
+
+<p><i>[2020-01-16 Priority set to 1 after discussion on the reflector.]</i></p>
+
+
+<p><i>[2020-02-10; Prague 2020; Casey comments and provides alternative wording]</i></p>
+
+<p>
+The fundamental issue here is that both <tt>ranges::size</tt> and <tt>view_interface::size</tt> 
+(it should be unsurprising that many of the "default" implementations of member <tt>meow</tt> in 
+<tt>view_interface</tt> look just like fallback cases of the <tt>ranges::meow</tt> CPO) have 
+a case that returns the difference of <tt>ranges::end</tt> and <tt>ranges::begin</tt>. If 
+<tt>begin</tt> and <tt>end</tt> are amortized* O(1) but not "true" O(1), then the resulting 
+<tt>size</tt> operation is amortized O(1) and not "true" O(1) as required by the 
+<tt>sized_range</tt> concept. I don't believe we can or should fix this on a case by case basis,
+but we should instead relax the complexity requirement for <tt>sized_range</tt> to be 
+handwavy-amortized O(1).
+</p>
+
+<p><strong>Previous resolution [SUPERSEDED]:</strong></p>
+<blockquote class="note">
+<p>This wording is relative to <a href="https://wg21.link/N4849">N4849</a>.</p>
+
+<ol>
+<li><p>Add the following specialization to 26.2 <a href="https://wg21.link/ranges.syn">[ranges.syn]</a>:</p>
+
+<blockquote>
+<pre>
+// [drop.while.view], drop while view
+  template&lt;view V, class Pred&gt;
+    requires input_range&lt;V&gt; &amp;&amp; is_object_v&lt;Pred&gt; &amp;&amp;
+      indirect_unary_predicate&lt;const Pred, iterator_t&lt;V&gt;&gt;
+    class drop_while_view;
+
+<ins>
+  template&lt;view V, class Pred&gt;
+    inline constexpr bool disable_sized_range&lt;drop_while_view&lt;V, Pred&gt;&gt; = true;
+</ins>
+
+  namespace views { inline constexpr unspecified drop_while = unspecified; }
+</pre>
+</blockquote>
+
+</li>
+</ol>
+</blockquote>
+
+<p><i>[2020-02 Moved to Immediate on Tuesday in Prague.]</i></p>
+
+
+
+<p id="res-3363"><b>Proposed resolution:</b></p>
+<p>This wording is relative to <a href="https://wg21.link/N4849">N4849</a>.</p>
+
+<ol>
+<li><p>Modify 26.4.3 <a href="https://wg21.link/range.sized">[range.sized]</a> as indicated:</p>
+
+<blockquote>
+<p>
+-2- Given an lvalue <tt>t</tt> of type <tt>remove_reference_t&lt;T&gt;</tt>, <tt>T</tt> models 
+<tt>sized_range</tt> only if
+</p>
+<ol style="list-style-type: none"> 
+<li><p>(2.1) &mdash; <tt>ranges::size(t)</tt> is <ins>amortized</ins> &#x1d4aa;(<tt>1</tt>), does not modify <tt>t</tt>, 
+and is equal to <tt>ranges::distance(t)</tt>, and</p></li>
+<li><p>[&hellip;]</p></li>
+</ol>
+<p>
+<del>-3- [<i>Note:</i> The complexity requirement for the evaluation of <tt>ranges::size</tt> is non-amortized, unlike the
+case for the complexity of the evaluations of <tt>ranges::begin</tt> and <tt>ranges::end</tt> in the <tt>range</tt> concept.
+&mdash; <i>end note</i>]</del>
+</p>
+</blockquote>
+
+</li>
+</ol>
+
+
+
+
+
+</body>
+</html>

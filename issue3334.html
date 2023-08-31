@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 3334: basic_osyncstream move assignment and destruction calls basic_syncbuf::emit() twice</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#C++20">C++20</a> status.</em></p>
+<h3><a name="3334" href="lwg-defects.html#3334">3334</a>. <tt>basic_osyncstream</tt> move assignment and destruction calls <tt>basic_syncbuf::emit()</tt> twice</h3>
+<p><b>Section:</b> 31.11.3 <a href="https://wg21.link/syncstream.osyncstream">[syncstream.osyncstream]</a> <b>Status:</b> <a href="lwg-active.html#C++20">C++20</a>
+ <b>Submitter:</b> Tim Song <b>Opened:</b> 2019-11-06 <b>Last modified:</b> 2021-02-25</p>
+<p><b>Priority: </b>3
+</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#C++20">C++20</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+These functions are specified to call <tt>emit()</tt>, which calls <tt>emit()</tt> on
+the <tt>basic_syncbuf</tt> and sets <tt>badbit</tt> if it fails. Then, the move
+assignment is specified to move-assign the <tt>basic_syncbuf</tt>, while the destructor
+implicitly needs to destroy the <tt>basic_syncbuf</tt> data member. This calls <tt>emit()</tt>
+on the <tt>basic_syncbuf</tt> again.
+<p/>
+Is this intended?
+</p>
+<p><i>[2020-02-13 Tim adds wording after discussion with Peter]</i></p>
+
+<p><i>[2020-02 Status to Immediate Thursday afternoon in Prague.]</i></p>
+
+
+
+<p id="res-3334"><b>Proposed resolution:</b></p>
+<p>This wording is relative to <a href="https://wg21.link/N4849">N4849</a>.</p>
+<blockquote class="note">
+<p>
+[<i>Drafting note:</i> There is no need to explicitly call <tt>emit</tt> at all in these functions;
+memberwise move-assignment/destruction is sufficient, so we can strike the specification
+entirely and rely on the wording in 16.3.3.4 <a href="https://wg21.link/functions.within.classes">[functions.within.classes]</a>. <i>&mdash; end drafting note</i>]
+</p>
+</blockquote>
+<ol>
+<li>
+<p>Edit 31.11.3.2 <a href="https://wg21.link/syncstream.osyncstream.cons">[syncstream.osyncstream.cons]</a> as indicated:</p>
+<blockquote>
+<pre>
+<del>~basic_osyncstream();</del>
+</pre>
+<blockquote>
+<p><del>-6- <i>Effects:</i> Calls <tt>emit()</tt>. If an exception is thrown
+from <tt>emit()</tt>, that exception is caught and ignored.</del></p>
+</blockquote>
+</blockquote>
+</li>
+<li>
+<p>Strike  [syncstream.osyncstream.assign]:</p>
+<blockquote>
+<pre>
+<del>basic_osyncstream&amp; operator=(basic_osyncstream&amp;&amp; rhs) noexcept;</del>
+</pre>
+<blockquote>
+<p><del>-1- <i>Effects:</i> First, calls <tt>emit()</tt>.
+If an exception is thrown from <tt>emit()</tt>, that exception is caught and ignored.
+Move assigns <tt>sb</tt> from <tt>rhs.sb</tt>. [ <i>Note:</i> This disassociates <tt>rhs</tt>
+from its wrapped stream buffer ensuring destruction of <tt>rhs</tt> produces no output. — <i>end note</i> ]</del>
+<p/>
+<del>-2- <i>Postconditions:</i> <tt>nullptr == rhs.get_­wrapped()</tt> is <tt>true</tt>.
+<tt>get_­wrapped()</tt> returns the value previously returned by <tt>rhs.get_­wrapped()</tt>.
+</del>
+</p>
+</blockquote>
+</blockquote>
+</li>
+</ol>
+
+
+
+
+</body>
+</html>

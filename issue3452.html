@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 3452: Are views really supposed to have strict &#x1d4aa;(1) destruction?</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#Resolved">Resolved</a> status.</em></p>
+<h3><a name="3452" href="lwg-defects.html#3452">3452</a>. Are views really supposed to have strict <tt>&#x1d4aa;(1)</tt> destruction?</h3>
+<p><b>Section:</b> 26.4.4 <a href="https://wg21.link/range.view">[range.view]</a> <b>Status:</b> <a href="lwg-active.html#Resolved">Resolved</a>
+ <b>Submitter:</b> Mathias Stearn <b>Opened:</b> 2020-06-16 <b>Last modified:</b> 2021-10-23</p>
+<p><b>Priority: </b>2
+</p>
+<p><b>View all other</b> <a href="lwg-index.html#range.view">issues</a> in [range.view].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#Resolved">Resolved</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+The second bullet of 26.4.4 <a href="https://wg21.link/range.view">[range.view]</a> paragraph 3 says
+"Examples of views are:[&hellip;]
+A range type that holds its elements by <tt>shared_ptr</tt>
+and shares ownership with all its copies".
+That clearly does not have <tt>&#x1d4aa;(1)</tt> destruction in all cases.
+However, that does seem like a useful type of view,
+and is related to the discussions around the proposed <tt>std::generator</tt>.
+</p>
+
+<p>
+What is the purpose of requiring <tt>&#x1d4aa;(1)</tt> destruction?
+Would it still be achieved by weakening it slightly to something like
+"If <i>N</i> copies and/or moves are made from a view that yields <i>M</i> values,
+destroying all of them takes time proportional to at worst <tt>&#x1d4aa;(<i>N</i>+<i>M</i>)</tt>"?
+This in particular prevents the <tt>&#x1d4aa;(<i>N</i>*<i>M</i>)</tt> case that I think the rules
+are trying to prevent, while still allowing some more interesting types of views.
+</p>
+
+<p>
+If instead we actually really do want strict <tt>&#x1d4aa;(1)</tt> destruction,
+then the example needs to be fixed.
+</p>
+
+<p><i>[2020-06-26; Reflector prioritization]</i></p>
+
+<p>
+Set priority to 2 after reflector discussions.
+</p>
+
+<p><i>[2021-01-15; Telecon discussion]</i></p>
+
+<p>
+Set status to LEWG for guidance on the issue of what it means to model view.
+</p>
+
+<p><i>[2021-02-16; Library Evolution Telecon Minutes]</i></p>
+
+<p>
+Poll: The <tt>shared_ptr</tt> part of the example mentioned in LWG3452 should be removed.
+</p>
+<pre>
+SF F N A SA
+4  6 3 1 0
+</pre>
+<p>
+Attendance: 25
+<p/>
+Outcome: Remove the <tt>shared_ptr</tt> part.
+</p>
+
+<p><strong>Previous resolution [SUPERSEDED]:</strong></p>
+<blockquote class="note">
+<p>
+This wording is relative to <a href="https://wg21.link/n4878">N4878</a>.
+</p>
+
+<ol>
+<li><p>Modify 26.4.4 <a href="https://wg21.link/range.view">[range.view]</a> as indicated:</p>
+
+<blockquote>
+<pre>
+template&lt;class T&gt;
+  concept view =
+    range&lt;T&gt; &amp;&amp; movable&lt;T&gt; &amp;&amp; default_initializable&lt;T&gt; &amp;&amp; enable_view&lt;T&gt;;
+</pre>
+[&hellip;]
+<blockquote>
+<p>
+-3- [<i>Example 1</i>: Examples of <tt>view</tt>s are:
+</p>
+<ol style="list-style-type: none">
+<li><p>(3.1) &mdash; A <tt>range</tt> type that wraps a pair of iterators.</p></li>
+<li><p><del>(3.2) &mdash; A <tt>range</tt> type that holds its elements by shared_ptr and shares ownership with all its copies.</del></p></li>
+<li><p>(3.3) &mdash; A <tt>range</tt> type that generates its elements on demand.</p></li>
+</ol>
+<p>
+Most containers (Clause 22) are not views since destruction of the container destroys the elements, which cannot
+be done in constant time. &mdash; <i>end example</i>]
+</p>
+</blockquote>
+</blockquote>
+</li>
+</ol>
+</blockquote>
+<p><i>[2021-10-23 Resolved by the adoption of <a href="https://wg21.link/P2415R2">P2415R2</a> at the October 2021 plenary. Status changed: LEWG &rarr; Resolved.]</i></p>
+
+
+
+<p id="res-3452"><b>Proposed resolution:</b></p>
+
+
+
+
+
+</body>
+</html>

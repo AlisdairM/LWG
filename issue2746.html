@@ -1,0 +1,259 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 2746: Inconsistency between requirements for emplace between optional and variant</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#New">New</a> status.</em></p>
+<h3><a name="2746" href="lwg-active.html#2746">2746</a>. Inconsistency between requirements for <tt>emplace</tt> between <tt>optional</tt> and <tt>variant</tt></h3>
+<p><b>Section:</b> 22.5.3.4 <a href="https://wg21.link/optional.assign">[optional.assign]</a>, 22.6.3.5 <a href="https://wg21.link/variant.mod">[variant.mod]</a>, 22.7.4.4 <a href="https://wg21.link/any.modifiers">[any.modifiers]</a> <b>Status:</b> <a href="lwg-active.html#New">New</a>
+ <b>Submitter:</b> Richard Smith <b>Opened:</b> 2016-07-13 <b>Last modified:</b> 2020-05-10</p>
+<p><b>Priority: </b>3
+</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#New">New</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+Referring to N4604:
+</p>
+<p>
+In  [optional.object.assign]: <tt>emplace</tt> (normal form) has a Requires that the construction works.
+</p>
+<blockquote>
+<p>
+<i>Requires:</i> <tt>is_constructible_v&lt;T, Args&amp;&amp;...&gt;</tt> is <tt>true</tt>.
+</p>
+</blockquote>
+<p>
+<tt>emplace</tt> (<tt>initializer_list</tt> form) has a SFINAE condition:
+</p>
+<blockquote>
+<p>
+<i>Remarks:</i> [&hellip;] unless <tt>is_constructible_v&lt;T, initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</tt> 
+is <tt>true</tt>.
+</p>
+</blockquote>
+<p>
+In 22.7.4.4 <a href="https://wg21.link/any.modifiers">[any.modifiers]</a>: <tt>emplace</tt> (normal form) has a Requires that the construction works:
+</p>
+<blockquote>
+<p>
+<i>Requires:</i> <tt>is_constructible_v&lt;T, Args...&gt;</tt> is <tt>true</tt>.
+</p>
+</blockquote>
+<p>
+<tt>emplace</tt> (<tt>initializer_list</tt> form) has a SFINAE condition:
+</p>
+<blockquote>
+<p>
+<i>Remarks:</i> [&hellip;] unless <tt>is_constructible_v&lt;T, initializer_list&lt;U&gt;&amp;, Args...&gt;</tt> is <tt>true</tt>.
+</p>
+</blockquote>
+<p>
+In 22.6.3.5 <a href="https://wg21.link/variant.mod">[variant.mod]</a>: <tt>emplace</tt> (<tt>T</tt>, normal form) has a SFINAE condition:
+</p>
+<blockquote>
+<p>
+<i>Remarks:</i> [&hellip;] unless <tt>is_constructible_v&lt;T, Args...&gt;</tt> is <tt>true</tt>, and <tt>T</tt> occurs exactly 
+once in <tt>Types...</tt>.
+</p>
+</blockquote>
+<p>
+<tt>emplace</tt> (Idx, normal form) has a <em>both</em> a Requires and a SFINAE condition:
+</p>
+<blockquote>
+<p>
+<i>Requires:</i> <tt>I &lt; sizeof...(Types)</tt>
+<p/>
+<i>Remarks:</i> [&hellip;] unless <tt>is_constructible_v&lt;T, Args...&gt;</tt> is <tt>true</tt>, and <tt>T</tt> 
+occurs exactly once in <tt>Types...</tt>.
+</p>
+</blockquote>
+<p>
+<tt>emplace</tt> (<tt>T</tt>, <tt>initializer_list</tt> form) has a SFINAE condition:
+</p>
+<blockquote>
+<p>
+<i>Remarks:</i> [&hellip;] unless <tt>is_constructible_v&lt;T, initializer_list&lt;U&gt;&amp;, Args...&gt;</tt> is 
+<tt>true</tt>, and <tt>T</tt> occurs exactly once in <tt>Types...</tt>.
+</p>
+</blockquote>
+<p>
+<tt>emplace</tt> (Idx, <tt>initializer_list</tt> form) has a both a Requires and a SFINAE condition:
+</p>
+<blockquote>
+<p>
+<i>Requires:</i> <tt>I &lt; sizeof...(Types)</tt>
+<p/>
+<i>Remarks:</i> [&hellip;] unless <tt>is_constructible_v&lt;T, Args...&gt;</tt> is true, and <tt>T</tt> occurs exactly 
+once in <tt>Types...</tt>.
+</p>
+</blockquote>
+<p>
+Why the inconsistency? Should all the cases have a SFINAE requirement?
+<p/>
+I see that variant has an additional requirement (<tt>T</tt> occurs exactly once in <tt>Types...</tt>), but that 
+only agues that it must be a SFINAE condition &mdash; doesn't say that the other cases (any/variant) should not.
+<p/>
+<tt>map</tt>/<tt>multimap</tt>/<tt>unordered_map</tt>/<tt>unordered_multimap</tt> have SFINAE'd versions of 
+<tt>emplace</tt> that don't take <tt>initializer_list</tt>s, but they don't have any <tt>emplace</tt> versions 
+that take ILs.
+<p/>
+Suggested resolution:
+<p/>
+Add SFINAE requirements to <tt>optional::emplace(Args&amp;&amp;... args)</tt> and 
+<tt>any::emplace(Args&amp;&amp;... args);</tt>
+</p>
+
+<p><i>[2016-08 Chicago]</i></p>
+
+<p>During issue prioritization, people suggested that this might apply to <tt>any</tt> as well.</p>
+<p>Ville notes that <a href="lwg-active.html#2746">2746</a>, <a href="lwg-defects.html#2754">2754</a> and <a href="lwg-defects.html#2756">2756</a> all go together.</p>
+
+<p><i>[2020-05-10; Daniel comments and provides wording]</i></p>
+
+<p>
+The inconsistency between the two <tt>any::emplace</tt> overloads have been removed by resolving LWG
+<a href="lwg-defects.html#2754">2754</a> to use <i>Constraints:</i> elements. The last Mandating paper 
+(<a href="https://wg21.link/p1460r1">P1460R1</a>), adopted in Prague, changed the <i>Requires:</i> elements
+for <tt>variant::emplace</tt>, "<tt>I &lt; sizeof...(Types)</tt>" to <i>Mandates:</i>, but that paper
+was focused on fixing inappropriate preconditions, not searching for consistency here. Given that the
+<tt>in_place_index_t</tt> constructors of <tt>variant</tt> uses SFINAE-conditions for this form of static
+precondition violation, I recommend that its <tt>emplace</tt> functions use the same style, which would bring 
+them also in consistency with their corresponding type-based <tt>emplace</tt> forms that are 
+<i>Mandates:</i>-free but delegate to the index-based forms.
+</p>
+
+
+<p id="res-2746"><b>Proposed resolution:</b></p>
+<p>This wording is relative to <a href="https://wg21.link/n4861">N4861</a>.</p>
+
+<ol>
+<li><p>Modify 22.5.3.4 <a href="https://wg21.link/optional.assign">[optional.assign]</a>, as indicated:</p>
+
+<blockquote>
+<pre>
+template&lt;class... Args&gt; T&amp; emplace(Args&amp;&amp;... args);
+</pre>
+<blockquote>
+<p>
+-29- <i><del>Mandates</del><ins>Constraints</ins>:</i> <tt>is_constructible_v&lt;T, Args...&gt;</tt> is <tt>true</tt>.
+<p/>
+[&hellip;]
+</p>
+</blockquote>
+<pre>
+template&lt;class U, class... Args&gt; T&amp; emplace(initializer_list&lt;U&gt; il, Args&amp;&amp;... args);
+</pre>
+<blockquote>
+<p>
+-35- <i>Constraints:</i> <tt>is_constructible_v&lt;T, initializer_list&lt;U&gt;&amp;, Args...&gt;</tt> is <tt>true</tt>.
+<p/>
+[&hellip;]
+</p>
+</blockquote>
+</blockquote>
+</li>
+
+<li><p>Modify 22.6.3.5 <a href="https://wg21.link/variant.mod">[variant.mod]</a>, as indicated:</p>
+
+<blockquote>
+<pre>
+template&lt;class T, class... Args&gt; T&amp; emplace(Args&amp;&amp;... args);
+</pre>
+<blockquote>
+<p>
+-1- <i>Constraints:</i> <tt>is_constructible_v&lt;T, Args...&gt;</tt> is <tt>true</tt>, and <tt>T</tt> 
+occurs exactly once in <tt>Types</tt>.
+<p/>
+[&hellip;]
+</p>
+</blockquote>
+<pre>
+template&lt;class T, class U, class... Args&gt; T&amp; emplace(initializer_list&lt;U&gt; il, Args&amp;&amp;... args);
+</pre>
+<blockquote>
+<p>
+-3- <i>Constraints:</i> <tt>is_constructible_v&lt;T, initializer_list&lt;U&gt;&amp;, Args...&gt;</tt> is <tt>true</tt>, 
+and <tt>T</tt> occurs exactly once in <tt>Types</tt>.
+<p/>
+[&hellip;]
+</p>
+</blockquote>
+<pre>
+template&lt;size_t I, class... Args&gt;
+  variant_alternative_t&lt;I, variant&lt;Types...&gt;&gt;&amp; emplace(Args&amp;&amp;... args);
+</pre>
+<blockquote>
+<p>
+<del>-5- <i>Mandates:</i> <tt>I &lt; sizeof...(Types)</tt>.</del>
+<p/>
+-6- <i>Constraints:</i> <tt>is_constructible_v&lt;T<sub><i>I</i></sub>, Args...&gt;</tt> is <tt>true</tt> 
+<ins>and <tt>I &lt; sizeof...(Types)</tt> is <tt>true</tt></ins>.
+<p/>
+[&hellip;]
+</p>
+</blockquote>
+<pre>
+template&lt;size_t I, class U, class... Args&gt;
+  variant_alternative_t&lt;I, variant&lt;Types...&gt;&gt;&amp; emplace(initializer_list&lt;U&gt; il, Args&amp;&amp;... args);
+</pre>
+<blockquote>
+<p>
+<del>-12- <i>Mandates:</i> <tt>I &lt; sizeof...(Types)</tt>.</del>
+<p/>
+-13- <i>Constraints:</i> <tt>is_constructible_v&lt;T<sub><i>I</i></sub>, initializer_list&lt;U&gt;&amp;, Args...&gt;</tt> is 
+<tt>true</tt> <ins>and <tt>I &lt; sizeof...(Types)</tt> is <tt>true</tt></ins>.
+<p/>
+[&hellip;]
+</p>
+</blockquote>
+</blockquote>
+</li>
+
+</ol>
+
+
+
+
+</body>
+</html>

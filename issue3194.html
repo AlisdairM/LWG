@@ -1,0 +1,329 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 3194: ConvertibleTo prose does not match code</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#C++20">C++20</a> status.</em></p>
+<h3><a name="3194" href="lwg-defects.html#3194">3194</a>. <tt>ConvertibleTo</tt> prose does not match code</h3>
+<p><b>Section:</b> 18.4.4 <a href="https://wg21.link/concept.convertible">[concept.convertible]</a> <b>Status:</b> <a href="lwg-active.html#C++20">C++20</a>
+ <b>Submitter:</b> Hubert Tong  <b>Opened:</b> 2019-03-05 <b>Last modified:</b> 2021-02-25</p>
+<p><b>Priority: </b>1
+</p>
+<p><b>View other</b> <a href="lwg-index-open.html#concept.convertible">active issues</a> in [concept.convertible].</p>
+<p><b>View all other</b> <a href="lwg-index.html#concept.convertible">issues</a> in [concept.convertible].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#C++20">C++20</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+The prose in <a href="https://wg21.link/n4800">N4800</a> subclause  [concept.convertibleto] indicates 
+that the requirement is for an expression of a particular type and value category to be both implicitly and explicitly 
+convertible to some other type. However, for a type
+</p>
+<blockquote><pre>
+struct A { A(const A&amp;) = delete; };
+</pre></blockquote>
+<p>
+<tt>ConvertibleTo&lt;const A, A&gt;</tt> would be <tt>false</tt> despite the following being okay:
+</p>
+<blockquote><pre>
+const A f();
+
+A test() {
+  static_cast&lt;A&gt;(f());
+  return f();
+}
+</pre></blockquote>
+
+<p><i>[2019-03-15 Priority set to 1 after reflector discussion]</i></p>
+
+
+<p><i>[2019-07-14 Tim adds PR based on discussion in 2019-07-09 LWG telecon]</i></p>
+
+
+<strong>Previous resolution [SUPERSEDED]:</strong>
+<blockquote class="note">
+<p>This wording is relative to <a href="https://wg21.link/n4820">N4820</a>, and also resolves LWG <a href="lwg-defects.html#3151">3151</a>.</p>
+
+<ol>
+<li><p>Modify  [concept.convertibleto] as indicated:</p>
+
+<blockquote>
+<p>
+-1- The <tt>ConvertibleTo</tt> concept requires <del>an</del><ins>a glvalue</ins> expression of a particular type and
+value category to be both implicitly and explicitly convertible to some other type. The implicit and explicit conversions
+are required to produce equal results.
+</p>
+
+<pre>
+template&lt;class From, class To&gt;
+  concept ConvertibleTo =
+    is_convertible_v&lt;From, To&gt; &amp;&amp;
+    requires(<ins>add_rvalue_reference_t&lt;</ins>From<ins>&gt;</ins> (&amp;f)()) {
+      static_cast&lt;To&gt;(f());
+    };
+</pre>
+<blockquote>
+<p>
+-2- Let <tt>test</tt> be the invented function:
+</p>
+<blockquote>
+<pre>
+To test(<ins>add_rvalue_reference_t&lt;</ins>From<ins>&gt;</ins> (&amp;f)()) {
+  return f();
+}
+</pre>
+</blockquote>
+<p>
+for some types <tt>From</tt> and <tt>To</tt>, and let <tt>f</tt> be a function with no arguments and return type
+<tt><ins>add_rvalue_reference_t&lt;</ins>From<ins>&gt;</ins></tt> such that <tt>f()</tt> is equality-preserving.
+<tt>From</tt> and <tt>To</tt> model <tt>ConvertibleTo&lt;From, To&gt;</tt> only if:
+</p>
+<ol style="list-style-type:none">
+<li><p>(2.1) &mdash; <tt>To</tt> is not an object or reference-to-object type, or <tt>static_cast&lt;To&gt;(f())</tt>
+is equal to <tt>test(f)</tt>.</p></li>
+<li><p>(2.2) &mdash; <tt><ins>add_rvalue_reference_t&lt;</ins>From<ins>&gt;</ins></tt> is not a reference-to-object type, or</p>
+<ol style="list-style-type:none">
+<li><p>(2.2.1) &mdash; If <tt><ins>add_rvalue_reference_t&lt;</ins>From<ins>&gt;</ins></tt> is an rvalue reference 
+to a non const-qualified type, the resulting state of the object referenced by <tt>f()</tt> after either above expression is valid
+but unspecified (16.4.6.15 <a href="https://wg21.link/lib.types.movedfrom">[lib.types.movedfrom]</a>).</p></li>
+<li><p>(2.2.2) &mdash; Otherwise, the object referred to by <tt>f()</tt> is not modified by either above expression.</p></li>
+</ol>
+</li>
+</ol>
+</blockquote>
+</blockquote>
+</li>
+</ol>
+</blockquote>
+
+<p><i>[2019-09-23; Daniel adjusts wording to working draft changes]</i></p>
+
+<p>
+Due to the concept renaming caused by <a href="https://wg21.link/p1754r1">P1754R1</a> the proposed
+wording is outdated and needs adjustments.
+</p>
+<strong>Previous resolution [SUPERSEDED]:</strong>
+<blockquote class="note">
+<p>This wording is relative to <a href="https://wg21.link/n4830">N4830</a>, and also resolves LWG <a href="lwg-defects.html#3151">3151</a>.</p>
+
+<ol>
+<li><p>Modify 18.4.4 <a href="https://wg21.link/concept.convertible">[concept.convertible]</a> as indicated:</p>
+
+<blockquote>
+<p>
+-1- The <tt>convertible_to</tt> concept requires <del>an</del><ins>a glvalue</ins> expression of a particular type and
+value category to be both implicitly and explicitly convertible to some other type. The implicit and explicit conversions
+are required to produce equal results.
+</p>
+
+<pre>
+template&lt;class From, class To&gt;
+  concept convertible_to =
+    is_convertible_v&lt;From, To&gt; &amp;&amp;
+    requires(<ins>add_rvalue_reference_t&lt;</ins>From<ins>&gt;</ins> (&amp;f)()) {
+      static_cast&lt;To&gt;(f());
+    };
+</pre>
+<blockquote>
+<p>
+-2- Let <tt>test</tt> be the invented function:
+</p>
+<blockquote>
+<pre>
+To test(<ins>add_rvalue_reference_t&lt;</ins>From<ins>&gt;</ins> (&amp;f)()) {
+  return f();
+}
+</pre>
+</blockquote>
+<p>
+for some types <tt>From</tt> and <tt>To</tt>, and let <tt>f</tt> be a function with no arguments and return type
+<tt><ins>add_rvalue_reference_t&lt;</ins>From<ins>&gt;</ins></tt> such that <tt>f()</tt> is equality-preserving.
+<tt>From</tt> and <tt>To</tt> model <tt>convertible_to&lt;From, To&gt;</tt> only if:
+</p>
+<ol style="list-style-type:none">
+<li><p>(2.1) &mdash; <tt>To</tt> is not an object or reference-to-object type, or <tt>static_cast&lt;To&gt;(f())</tt>
+is equal to <tt>test(f)</tt>.</p></li>
+<li><p>(2.2) &mdash; <tt><ins>add_rvalue_reference_t&lt;</ins>From<ins>&gt;</ins></tt> is not a reference-to-object type, or</p>
+<ol style="list-style-type:none">
+<li><p>(2.2.1) &mdash; If <tt><ins>add_rvalue_reference_t&lt;</ins>From<ins>&gt;</ins></tt> is an rvalue reference 
+to a non const-qualified type, the resulting state of the object referenced by <tt>f()</tt> after either above expression is valid
+but unspecified (16.4.6.15 <a href="https://wg21.link/lib.types.movedfrom">[lib.types.movedfrom]</a>).</p></li>
+<li><p>(2.2.2) &mdash; Otherwise, the object referred to by <tt>f()</tt> is not modified by either above expression.</p></li>
+</ol>
+</li>
+</ol>
+</blockquote>
+</blockquote>
+</li>
+</ol>
+</blockquote>
+<p><i>[2019-11-06 Tim updates PR based on discussion in Belfast LWG evening session]</i></p>
+
+<p>
+"glvalue" is incorrect because we want to allow testing <tt>convertible_to&lt;void, void&gt;</tt>. It's also less than clear
+how the "expression" and "a particular type" in the first sentence correspond to the parameters of the concept.
+</p>
+
+<strong>Previous resolution [SUPERSEDED]:</strong>
+<blockquote class="note">
+<p>This wording is relative to <a href="https://wg21.link/n4835">N4835</a>, and also resolves LWG <a href="lwg-defects.html#3151">3151</a>.</p>
+
+<ol>
+<li><p>Modify 18.4.4 <a href="https://wg21.link/concept.convertible">[concept.convertible]</a> as indicated:</p>
+
+<blockquote>
+<p>
+-1- The <tt>convertible_to</tt> concept <ins>for types <tt>From</tt> and <tt>To</tt></ins> requires an expression
+<ins><tt>E</tt> such that <tt>decltype((E))</tt> is <tt>add_rvalue_reference_t&lt;From&gt;</tt></ins>
+<del>of a particular type and value category</del> to be both implicitly and explicitly convertible to 
+<del>some other type</del> <ins><tt>To</tt></ins>. The implicit and explicit conversions are required to produce equal results.
+</p>
+
+<pre>
+template&lt;class From, class To&gt;
+  concept convertible_to =
+    is_convertible_v&lt;From, To&gt; &amp;&amp;
+    requires(<ins>add_rvalue_reference_t&lt;</ins>From<ins>&gt;</ins> (&amp;f)()) {
+      static_cast&lt;To&gt;(f());
+    };
+</pre>
+<blockquote>
+<p>
+-2- Let <ins><tt>FromR</tt> be <tt>add_rvalue_reference_t&lt;From&gt;</tt> and</ins> <tt>test</tt> be the invented function:
+</p>
+<blockquote>
+<pre>
+To test(From<ins>R</ins> (&amp;f)()) {
+  return f();
+}
+</pre>
+</blockquote>
+<p>
+for some types <tt>From</tt> and <tt>To</tt>, and let <tt>f</tt> be a function with no arguments and return type
+<tt>From<ins>R</ins></tt> such that <tt>f()</tt> is equality-preserving.
+<tt>From</tt> and <tt>To</tt> model <tt>convertible_to&lt;From, To&gt;</tt> only if:
+</p>
+<ol style="list-style-type:none">
+<li><p>(2.1) &mdash; <tt>To</tt> is not an object or reference-to-object type, or <tt>static_cast&lt;To&gt;(f())</tt>
+is equal to <tt>test(f)</tt>.</p></li>
+<li><p>(2.2) &mdash; <tt>From<ins>R</ins></tt> is not a reference-to-object type, or</p>
+<ol style="list-style-type:none">
+<li><p>(2.2.1) &mdash; If <tt>From<ins>R</ins></tt> is an rvalue reference 
+to a non const-qualified type, the resulting state of the object referenced by <tt>f()</tt> after either above expression is valid
+but unspecified (16.4.6.15 <a href="https://wg21.link/lib.types.movedfrom">[lib.types.movedfrom]</a>).</p></li>
+<li><p>(2.2.2) &mdash; Otherwise, the object referred to by <tt>f()</tt> is not modified by either above expression.</p></li>
+</ol>
+</li>
+</ol>
+</blockquote>
+</blockquote>
+</li>
+</ol>
+</blockquote>
+<p><i>[2019-11-09 Tim rephrased first sentence based on discussion in Belfast LWG Saturday session]</i></p>
+
+<p><i>[Status to Tentatively ready after Belfast LWG Saturday session]</i></p>
+
+
+
+<p id="res-3194"><b>Proposed resolution:</b></p>
+<p>This wording is relative to <a href="https://wg21.link/n4835">N4835</a>, and also resolves LWG <a href="lwg-defects.html#3151">3151</a>.</p>
+
+<ol>
+<li><p>Modify 18.4.4 <a href="https://wg21.link/concept.convertible">[concept.convertible]</a> as indicated:</p>
+
+<blockquote>
+<p>
+-1- <ins>Given types <tt>From</tt> and <tt>To</tt> and an expression <tt>E</tt> such that <tt>decltype((E))</tt>
+is <tt>add_rvalue_reference_t&lt;From&gt;</tt>, <tt>convertible_to&lt;From, To&gt;</tt></ins>
+<del>The <tt>convertible_to</tt> concept</del> requires <ins><tt>E</tt></ins>
+<del>an expression of a particular type and value category</del> to be both implicitly and explicitly convertible to 
+<del>some other</del> type<ins> <tt>To</tt></ins>. The implicit and explicit conversions are required to produce equal results.
+</p>
+
+<pre>
+template&lt;class From, class To&gt;
+  concept convertible_to =
+    is_convertible_v&lt;From, To&gt; &amp;&amp;
+    requires(<ins>add_rvalue_reference_t&lt;</ins>From<ins>&gt;</ins> (&amp;f)()) {
+      static_cast&lt;To&gt;(f());
+    };
+</pre>
+<blockquote>
+<p>
+-2- Let <ins><tt>FromR</tt> be <tt>add_rvalue_reference_t&lt;From&gt;</tt> and</ins> <tt>test</tt> be the invented function:
+</p>
+<blockquote>
+<pre>
+To test(From<ins>R</ins> (&amp;f)()) {
+  return f();
+}
+</pre>
+</blockquote>
+<p>
+for some types <tt>From</tt> and <tt>To</tt>, and let <tt>f</tt> be a function with no arguments and return type
+<tt>From<ins>R</ins></tt> such that <tt>f()</tt> is equality-preserving.
+<tt>From</tt> and <tt>To</tt> model <tt>convertible_to&lt;From, To&gt;</tt> only if:
+</p>
+<ol style="list-style-type:none">
+<li><p>(2.1) &mdash; <tt>To</tt> is not an object or reference-to-object type, or <tt>static_cast&lt;To&gt;(f())</tt>
+is equal to <tt>test(f)</tt>.</p></li>
+<li><p>(2.2) &mdash; <tt>From<ins>R</ins></tt> is not a reference-to-object type, or</p>
+<ol style="list-style-type:none">
+<li><p>(2.2.1) &mdash; If <tt>From<ins>R</ins></tt> is an rvalue reference 
+to a non const-qualified type, the resulting state of the object referenced by <tt>f()</tt> after either above expression is valid
+but unspecified (16.4.6.15 <a href="https://wg21.link/lib.types.movedfrom">[lib.types.movedfrom]</a>).</p></li>
+<li><p>(2.2.2) &mdash; Otherwise, the object referred to by <tt>f()</tt> is not modified by either above expression.</p></li>
+</ol>
+</li>
+</ol>
+</blockquote>
+</blockquote>
+</li>
+</ol>
+
+
+
+
+</body>
+</html>

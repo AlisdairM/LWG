@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 2375: Is [iterator.requirements.general]/9 too broadly applied?</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#Resolved">Resolved</a> status.</em></p>
+<h3><a name="2375" href="lwg-defects.html#2375">2375</a>. Is [iterator.requirements.general]/9 too broadly applied?</h3>
+<p><b>Section:</b> 25.3.1 <a href="https://wg21.link/iterator.requirements.general">[iterator.requirements.general]</a> <b>Status:</b> <a href="lwg-active.html#Resolved">Resolved</a>
+ <b>Submitter:</b> Marshall Clow <b>Opened:</b> 2014-03-25 <b>Last modified:</b> 2021-06-23</p>
+<p><b>Priority: </b>3
+</p>
+<p><b>View all other</b> <a href="lwg-index.html#iterator.requirements.general">issues</a> in [iterator.requirements.general].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#Resolved">Resolved</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+25.3.1 <a href="https://wg21.link/iterator.requirements.general">[iterator.requirements.general]</a> p9 says:
+</p>
+<blockquote><p>
+Destruction of an iterator may invalidate pointers and references previously obtained from that iterator.
+</p></blockquote>
+<p>
+But the resolution of LWG issue <a href="lwg-defects.html#2360">2360</a> specifically advocates returning <tt>*--temp;</tt> where <tt>temp</tt> is a 
+local variable.
+<p/>
+And 25.3.5.5 <a href="https://wg21.link/forward.iterators">[forward.iterators]</a> p6 says:
+</p>
+<blockquote><p>
+If <tt>a</tt> and <tt>b</tt> are both dereferenceable, then <tt>a == b</tt> if and only if <tt>*a</tt> and <tt>*b</tt> are bound 
+to the same object.
+</p></blockquote>
+<p>
+which disallows "stashing" iterators (i.e, iterators that refer to data inside themselves).
+<p/>
+So, I suspect that the restriction in p9 should only apply to input iterators, and can probably be moved into 
+25.3.5.3 <a href="https://wg21.link/input.iterators">[input.iterators]</a> instead of 25.3.1 <a href="https://wg21.link/iterator.requirements.general">[iterator.requirements.general]</a>.
+</p>
+
+<p><i>[2014-05-22, Daniel comments]</i></p>
+
+
+<p>
+Given that forward iterators (and beyond) are refinements of input iterator, moving this constraint to input iterators won't help
+much because it would still hold for all refined forms. 
+</p>
+
+<p><i>[2021-06-23 Resolved by adoption of <a href="https://wg21.link/P0896R4">P0896R4</a> in San Diego. Status changed: New &rarr; Resolved.]</i></p>
+
+
+
+<p id="res-2375"><b>Proposed resolution:</b></p>
+
+
+
+
+
+</body>
+</html>

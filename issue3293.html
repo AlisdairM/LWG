@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 3293: move_iterator operator+() has incorrect constraints</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#WP">WP</a> status.</em></p>
+<h3><a name="3293" href="lwg-defects.html#3293">3293</a>. <tt>move_iterator operator+()</tt> has incorrect constraints</h3>
+<p><b>Section:</b> 25.5.4.9 <a href="https://wg21.link/move.iter.nonmember">[move.iter.nonmember]</a> <b>Status:</b> <a href="lwg-active.html#WP">WP</a>
+ <b>Submitter:</b> Bo Persson <b>Opened:</b> 2019-09-13 <b>Last modified:</b> 2021-10-14</p>
+<p><b>Priority: </b>3
+</p>
+<p><b>View all other</b> <a href="lwg-index.html#move.iter.nonmember">issues</a> in [move.iter.nonmember].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#WP">WP</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+Section 25.5.4.9 <a href="https://wg21.link/move.iter.nonmember">[move.iter.nonmember]</a>/2-3 says:
+</p>
+<blockquote>
+<pre>
+template&lt;class Iterator&gt;
+  constexpr move_iterator&lt;Iterator&gt;
+    operator+(iter_difference_t&lt;Iterator&gt; n, const move_iterator&lt;Iterator&gt;&amp; x);
+</pre>
+<blockquote>
+<p>
+<i>Constraints:</i> <tt>x + n</tt> is well-formed and has type <tt>Iterator</tt>.
+<p/>
+<i>Returns:</i> <tt>x + n</tt>.
+</p>
+</blockquote>
+</blockquote>
+<p>
+However, the return type of this operator is <tt>move_iterator&lt;Iterator&gt;</tt>, so
+the expression <tt>x + n</tt> ought to have that type. Also, there is no <tt>operator+</tt> 
+that matches the constraints, so it effectively disables the addition.
+</p>
+
+<p><i>[2019-10-31 Issue Prioritization]</i></p>
+
+<p>Priority to 3 after reflector discussion.</p>
+
+<strong>Previous resolution [SUPERSEDED]:</strong>
+<blockquote class="note">
+<p>This wording is relative to <a href="https://wg21.link/n4830">N4830</a>.</p>
+
+<ol>
+<li><p>Modify 25.5.4.9 <a href="https://wg21.link/move.iter.nonmember">[move.iter.nonmember]</a> as indicated:</p>
+
+<blockquote>
+<pre>
+template&lt;class Iterator&gt;
+  constexpr move_iterator&lt;Iterator&gt;
+    operator+(iter_difference_t&lt;Iterator&gt; n, const move_iterator&lt;Iterator&gt;&amp; x);
+</pre>
+<blockquote>
+<p>
+-2- <i>Constraints:</i> <tt>x + n</tt> is well-formed and has type <tt><ins>move_iterator&lt;</ins>Iterator<ins>&gt;</ins></tt>.
+<p/>
+-3- <i>Returns:</i> <tt>x + n</tt>.
+</p>
+</blockquote>
+</blockquote>
+</li>
+
+</ol>
+</blockquote>
+
+<p><i>[2019-11-04; Casey comments and provides revised wording]</i></p>
+
+<p>
+After applying the P/R the <i>Constraint</i> element requires <tt>x + n</tt> to be well-formed (it always is, 
+since that operation is unconstrained) and requires <tt>x + n</tt> to have type 
+<tt>move_iterator&lt;Iterator&gt;</tt> (which it always does). Consequently, this <i>Constraint</i> 
+is always satisfied and it has no normative effect. The intent of the change in 
+<a href="https://wg21.link/p0896r4">P0896R4</a> was that this operator be constrained to require 
+addition on the base iterator to be well-formed and have type <tt>Iterator</tt>, which ensures that 
+the other semantics of this operation are implementable.
+</p>
+
+<p><i>[2021-06-23; Reflector poll]</i></p>
+
+<p>
+Set status to Tentatively Ready after six votes in favour during reflector poll.
+</p>
+
+<p><i>[2021-10-14 Approved at October 2021 virtual plenary. Status changed: Voting &rarr; WP.]</i></p>
+
+
+
+<p id="res-3293"><b>Proposed resolution:</b></p>
+<p>This wording is relative to <a href="https://wg21.link/n4835">N4835</a>.</p>
+
+<ol>
+<li><p>Modify 25.5.4.9 <a href="https://wg21.link/move.iter.nonmember">[move.iter.nonmember]</a> as indicated:</p>
+
+<blockquote>
+<pre>
+template&lt;class Iterator&gt;
+  constexpr move_iterator&lt;Iterator&gt;
+    operator+(iter_difference_t&lt;Iterator&gt; n, const move_iterator&lt;Iterator&gt;&amp; x);
+</pre>
+<blockquote>
+<p>
+-2- <i>Constraints:</i> <tt>x<ins>.base()</ins> + n</tt> is well-formed and has type <tt>Iterator</tt>.
+<p/>
+-3- <i>Returns:</i> <tt>x + n</tt>.
+</p>
+</blockquote>
+</blockquote>
+
+</li>
+
+</ol>
+
+
+
+
+</body>
+</html>

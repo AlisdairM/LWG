@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 510: Input_type for bernoulli_distribution</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#NAD">NAD</a> status.</em></p>
+<h3><a name="510" href="lwg-closed.html#510">510</a>. Input_type for bernoulli_distribution</h3>
+<p><b>Section:</b> 28.5.9.3 <a href="https://wg21.link/rand.dist.bern">[rand.dist.bern]</a>, 99 [tr.rand.dist.bern] <b>Status:</b> <a href="lwg-active.html#NAD">NAD</a>
+ <b>Submitter:</b> Walter Brown <b>Opened:</b> 2005-07-03 <b>Last modified:</b> 2016-01-28</p>
+<p><b>Priority: </b>Not Prioritized
+</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#NAD">NAD</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+In [tr.rand.dist.bern] the distribution currently requires;
+</p>
+<blockquote><pre>
+typedef  int  input_type;
+</pre></blockquote>
+
+
+<p id="res-510"><b>Proposed resolution:</b></p>
+<p>
+We believe this is an unfortunate choice, and recommend instead:
+</p>
+<blockquote><pre>
+typedef  unsigned int  input_type;
+</pre></blockquote>
+
+<p><i>[
+Berlin:  Moved to NAD. N1932 makes this moot: the input_type template parameter has been
+eliminated.
+]</i></p>
+
+
+
+
+
+
+
+</body>
+</html>

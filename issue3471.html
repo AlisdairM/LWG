@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 3471: polymorphic_allocator::allocate does not satisfy Cpp17Allocator requirements</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#WP">WP</a> status.</em></p>
+<h3><a name="3471" href="lwg-defects.html#3471">3471</a>. <tt>polymorphic_allocator::allocate</tt> does not satisfy <i>Cpp17Allocator</i> requirements</h3>
+<p><b>Section:</b> 20.4 <a href="https://wg21.link/mem.res">[mem.res]</a> <b>Status:</b> <a href="lwg-active.html#WP">WP</a>
+ <b>Submitter:</b> Alisdair Meredith <b>Opened:</b> 2020-07-27 <b>Last modified:</b> 2022-02-10</p>
+<p><b>Priority: </b>3
+</p>
+<p><b>View all other</b> <a href="lwg-index.html#mem.res">issues</a> in [mem.res].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#WP">WP</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+With the adoption of <a href="https://wg21.link/p0593r6">P0593R6</a> in Prague,
+<tt>std::ptr::polymorphic_allocator</tt> no longer satisfies the of <i>Cpp17Allocator</i>
+requirements. Specifically, all calls to <tt>allocate(n)</tt> need to create an object
+for an array of <tt>n T</tt>s (but not initialize any of those elements).
+<tt>std::pmr::polymorphic_allocator</tt> calls its underlying memory resource to allocate
+sufficient bytes of storage, but it does not create (and start the lifetime of) the array
+object within that storage.
+</p>
+
+<p><i>[2020-08-03; Billy comments]</i></p>
+
+<p>
+It's worth noting that the resolution of <a href="https://wg21.link/cwg2382">CWG 2382</a>
+has impact on implementors for this issue.
+</p>
+
+<p><i>[2020-08-21; Reflector prioritization]</i></p>
+
+<p>
+Set priority to 3 after reflector discussions.
+</p>
+
+<p><strong>Previous resolution [SUPERSEDED]:</strong></p>
+<blockquote class="note">
+<p>
+This wording is relative to <a href="https://wg21.link/n4861">N4861</a>.
+</p>
+
+<blockquote class="note">
+<p>
+[<i>Drafting note:</i> The proposed wording is inspired by the example given in the "Assertion/note" column of the expression
+<tt>a.allocate(n)</tt> in table [tab:cpp17.allocator].]
+</p>
+</blockquote>
+
+<ol>
+<li><p>Modify 20.4.2.2 <a href="https://wg21.link/mem.res.public">[mem.res.public]</a> as indicated:</p>
+
+<blockquote>
+<pre>
+[[nodiscard]] void* allocate(size_t bytes, size_t alignment = max_align);
+</pre>
+<blockquote>
+<p>
+-2- <i>Effects:</i> Equivalent to: <del><tt>return do_allocate(bytes, alignment);</tt></del>
+</p>
+<blockquote><pre>
+<ins>void* p = do_allocate(bytes, alignment);
+return launder(new (p) byte[bytes]);</ins>
+</pre></blockquote>
+</blockquote>
+</blockquote>
+</li>
+</ol>
+</blockquote>
+
+<p><i>[2021-05-20 Tim comments and updates wording]</i></p>
+
+<p>
+<tt>memory_resource::allocate</tt> is the PMR equivalent of <tt>malloc</tt>
+and <tt>operator new</tt>. It therefore needs the "suitable created object"
+wording (see 6.7.2 <a href="https://wg21.link/intro.object">[intro.object]</a>, 20.2.12 <a href="https://wg21.link/c.malloc">[c.malloc]</a>).
+This ensures that it creates the requisite array object automatically for all
+the allocation functions of <tt>polymorphic_allocator</tt>,
+and returns the correct pointer value in all cases.
+</p>
+
+<p><i>[2022-01-31; Reflector poll]</i></p>
+
+<p>
+Set status to Tentatively Ready after seven votes in favour during reflector poll.
+</p>
+
+<p><i>[2022-02-10 Approved at February 2022 virtual plenary. Status changed: Tentatively Ready &rarr; WP.]</i></p>
+
+
+
+<p id="res-3471"><b>Proposed resolution:</b></p>
+<p>
+This wording is relative to <a href="https://wg21.link/n4885">N4885</a>.
+</p>
+
+<ol>
+<li><p>Modify 20.4.2.2 <a href="https://wg21.link/mem.res.public">[mem.res.public]</a> as indicated:</p>
+
+<blockquote>
+<pre>
+[[nodiscard]] void* allocate(size_t bytes, size_t alignment = max_align);
+</pre>
+<blockquote>
+<p>
+-2- <i>Effects:</i> <del>Equivalent to: <tt>return</tt></del>
+<ins>Allocates storage by calling</ins> <tt>do_allocate(bytes, alignment)</tt><del><tt>;</tt></del>
+<ins>and implicitly creates objects within the allocated region of storage.</ins>
+<p/>
+<ins>-?- <i>Returns:</i> A pointer to a suitable created object
+(6.7.2 <a href="https://wg21.link/intro.object">[intro.object]</a>) in the allocated region of storage.</ins>
+<p/>
+<ins>-?- <i>Throws:</i> What and when the call to <tt>do_allocate</tt> throws.</ins>
+</p>
+</blockquote>
+</blockquote>
+</li>
+</ol>
+
+
+
+
+
+</body>
+</html>

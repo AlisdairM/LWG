@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 2493: initializer_list supports incomplete classes</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#New">New</a> status.</em></p>
+<h3><a name="2493" href="lwg-active.html#2493">2493</a>. <tt>initializer_list</tt> supports incomplete classes</h3>
+<p><b>Section:</b> 17.10 <a href="https://wg21.link/support.initlist">[support.initlist]</a> <b>Status:</b> <a href="lwg-active.html#New">New</a>
+ <b>Submitter:</b> David Krauss <b>Opened:</b> 2015-04-27 <b>Last modified:</b> 2015-05-05</p>
+<p><b>Priority: </b>4
+</p>
+<p><b>View other</b> <a href="lwg-index-open.html#support.initlist">active issues</a> in [support.initlist].</p>
+<p><b>View all other</b> <a href="lwg-index.html#support.initlist">issues</a> in [support.initlist].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#New">New</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+The typical use-case of <tt>std::initializer_list&lt;T&gt;</tt> is for a pass-by-value parameter of <tt>T</tt>'s constructor. 
+However, this contravenes 16.4.5.8 <a href="https://wg21.link/res.on.functions">[res.on.functions]</a>/2.5 because <tt>initializer_list</tt> doesn't specifically allow 
+incomplete types (as do for example <tt>std::unique_ptr</tt> (20.3.1 <a href="https://wg21.link/unique.ptr">[unique.ptr]</a>/5) and 
+<tt>std::enable_shared_from_this</tt> (20.3.2.7 <a href="https://wg21.link/util.smartptr.enab">[util.smartptr.enab]</a>/2)).
+<p/>
+A resolution would be to copy-paste the relevant text from such a paragraph.
+</p>
+
+
+
+<p id="res-2493"><b>Proposed resolution:</b></p>
+
+
+
+
+
+</body>
+</html>

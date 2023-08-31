@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 308: Table 82 mentions unrelated headers</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#CD1">CD1</a> status.</em></p>
+<h3><a name="308" href="lwg-defects.html#308">308</a>. Table 82 mentions unrelated headers</h3>
+<p><b>Section:</b> 31 <a href="https://wg21.link/input.output">[input.output]</a> <b>Status:</b> <a href="lwg-active.html#CD1">CD1</a>
+ <b>Submitter:</b> Martin Sebor <b>Opened:</b> 2001-03-15 <b>Last modified:</b> 2016-01-28</p>
+<p><b>Priority: </b>Not Prioritized
+</p>
+<p><b>View all other</b> <a href="lwg-index.html#input.output">issues</a> in [input.output].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#CD1">CD1</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+Table 82 in section 27 mentions the header &lt;cstdlib&gt; for String
+streams (31.8 <a href="https://wg21.link/string.streams">[string.streams]</a>) and the headers &lt;cstdio&gt; and
+&lt;cwchar&gt; for File streams (31.10 <a href="https://wg21.link/file.streams">[file.streams]</a>). It's not clear
+why these headers are mentioned in this context since they do not
+define any of the library entities described by the
+subclauses. According to 16.4.2.2 <a href="https://wg21.link/contents">[contents]</a>, only such headers
+are to be listed in the summary.
+</p>
+
+
+<p id="res-308"><b>Proposed resolution:</b></p>
+<p>Remove &lt;cstdlib&gt; and &lt;cwchar&gt; from
+Table 82.</p>
+
+<p><i>[Copenhagen: changed the proposed resolution slightly.  The
+original proposed resolution also said to remove &lt;cstdio&gt; from
+Table 82.  However, &lt;cstdio&gt; is mentioned several times within
+section 31.10 <a href="https://wg21.link/file.streams">[file.streams]</a>, including 31.13 <a href="https://wg21.link/c.files">[c.files]</a>.]</i></p>
+
+
+
+
+
+
+</body>
+</html>

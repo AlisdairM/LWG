@@ -1,0 +1,266 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 3392: ranges::distance() cannot be used on a move-only iterator with a sized sentinel</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#WP">WP</a> status.</em></p>
+<h3><a name="3392" href="lwg-defects.html#3392">3392</a>. <tt>ranges::distance()</tt> cannot be used on a move-only iterator with a sized sentinel</h3>
+<p><b>Section:</b> 25.4.4.3 <a href="https://wg21.link/range.iter.op.distance">[range.iter.op.distance]</a> <b>Status:</b> <a href="lwg-active.html#WP">WP</a>
+ <b>Submitter:</b> Patrick Palka <b>Opened:</b> 2020-02-07 <b>Last modified:</b> 2021-10-14</p>
+<p><b>Priority: </b>3
+</p>
+<p><b>View all other</b> <a href="lwg-index.html#range.iter.op.distance">issues</a> in [range.iter.op.distance].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#WP">WP</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+One cannot use <tt>ranges::distance(I, S)</tt> to compute the distance between a
+move-only <tt>counted_iterator</tt> and the <tt>default_sentinel</tt>. In other words,
+the following is invalid
+</p>
+<blockquote><pre>
+// iter is a counted_iterator with an move-only underlying iterator
+ranges::distance(iter, default_sentinel);
+</pre></blockquote>
+<p>
+and yet
+</p>
+<blockquote><pre>
+(default_sentinel - iter);
+</pre></blockquote>
+<p>
+is valid. The first example is invalid because <tt>ranges::distance()</tt> takes
+its first argument by value so when invoking it with an iterator lvalue
+argument the iterator must be copyable, which a move-only iterator is
+not. The second example is valid because <tt>counted_iterator::operator-()</tt>
+takes its iterator argument by <tt>const</tt> reference, so it doesn't require
+copyability of the <tt>counted_iterator</tt>.
+<p/>
+This incongruency poses an inconvenience in generic code which uses
+<tt>ranges::distance()</tt> to efficiently compute the distance between two
+iterators or between an iterator-sentinel pair. Although it's a bit of
+an edge case, it would be good if <tt>ranges::distance()</tt> does the right
+thing when the iterator is a move-only lvalue with a sized sentinel.
+<p/>
+If this is worth fixing, one solution might be to define a separate
+overload of <tt>ranges::distance(I, S)</tt> that takes its arguments by <tt>const</tt>
+reference, as follows.
+</p>
+
+<p><i>[2020-02 Prioritized as P3 and LEWG Monday morning in Prague]</i></p>
+
+
+<p><i>[2020-05-28; LEWG issue reviewing]</i></p>
+
+<p>
+LEWG issue processing voted to accept the direction of 3392. Status change to Open.
+</p>
+<blockquote>
+<pre>
+Accept the direction of LWG3392
+
+SF F N A SA
+14 6 0 0 0
+</pre>
+</blockquote>
+
+<p><strong>Previous resolution [SUPERSEDED]:</strong></p>
+<blockquote class="note">
+<ol>
+<li><p>Modify 25.2 <a href="https://wg21.link/iterator.synopsis">[iterator.synopsis]</a>, header <tt>&lt;iterator&gt;</tt> synopsis, as indicated:</p>
+
+<blockquote>
+<pre>
+#include &lt;concepts&gt;
+
+namespace std {
+  [&hellip;]
+  <i>// 25.4.4 <a href="https://wg21.link/range.iter.ops">[range.iter.ops]</a>, range iterator operations</i>
+  namespace ranges {
+    [&hellip;]
+    <i>// 25.4.4.3 <a href="https://wg21.link/range.iter.op.distance">[range.iter.op.distance]</a>, ranges::distance</i>
+    template&lt;input_or_output_iterator I, sentinel_for&lt;I&gt; S&gt;
+      <ins>requires (!sized_sentinel_for&lt;S, I&gt;)</ins>
+        constexpr iter_difference_t&lt;I&gt; distance(I first, S last);
+    <ins>template&lt;input_or_output_iterator I, sized_sentinel_for&lt;I&gt; S&gt;
+      constexpr iter_difference_t&lt;I&gt; distance(const I&amp; first, const S&amp; last);</ins>
+    template&lt;range R&gt;
+      constexpr range_difference_t&lt;R&gt; distance(R&amp;&amp; r);
+    [&hellip;]
+  }
+  [&hellip;]
+}
+</pre>
+</blockquote>
+</li>
+
+<li><p>Modify 25.4.4.3 <a href="https://wg21.link/range.iter.op.distance">[range.iter.op.distance]</a> as indicated:</p>
+
+<blockquote>
+<pre>
+template&lt;input_or_output_iterator I, sentinel_for&lt;I&gt; S&gt;
+  <ins>requires (!sized_sentinel_for&lt;S, I&gt;)</ins>
+    constexpr iter_difference_t&lt;I&gt; ranges::distance(I first, S last);
+</pre>
+<blockquote>
+<p>
+-1- <i>Preconditions:</i> <tt>[first, last)</tt> denotes a range<del>, or <tt>[last, first)</tt> denotes a range
+and <tt>S</tt> and <tt>I</tt> model <tt>same_as&lt;S, I&gt; &amp;&amp; sized_sentinel_for&lt;S, I&gt;</tt></del>.
+<p/>
+-2- <i>Effects:</i> <del>If <tt>S</tt> and <tt>I</tt> model <tt>sized_sentinel_for&lt;S, I&gt;</tt>, returns
+<tt>(last - first)</tt>; otherwise, r</del><ins>R</ins>eturns the number of increments needed to get from
+<tt>first</tt> to <tt>last</tt>.
+</p>
+</blockquote>
+<pre>
+<ins>template&lt;input_or_output_iterator I, sized_sentinel_for&lt;I&gt; S&gt;
+  constexpr iter_difference_t&lt;I&gt; ranges::distance(const I&amp; first, const S&amp; last);</ins>
+</pre>
+<blockquote>
+<p>
+<ins>-?- <i>Preconditions:</i> <tt>S</tt> and <tt>I</tt> model <tt>sized_sentinel_for&lt;S, I&gt;</tt> and either:</ins>
+<ol style="list-style-type: none">
+<li><p><ins>(?.1) &mdash; <tt>[first, last)</tt> denotes a range, or</ins></p></li>
+<li><p><ins>(?.2) &mdash; <tt>[last, first)</tt> denotes a range and <tt>S</tt> and <tt>I</tt> model
+<tt>same_as&lt;S, I&gt;</tt>.</ins></p></li>
+</ol>
+<p/>
+<ins>-? <i>Effects:</i> Returns <tt>(last - first)</tt>;</ins>
+</p>
+</blockquote>
+</blockquote>
+</li>
+
+</ol>
+</blockquote>
+<p><i>[2021-05-19 Tim updates wording]</i></p>
+
+<p>
+The wording below removes the explicit precondition on the <tt>sized_sentinel_for</tt>
+overload of <tt>distance</tt>, relying instead on the semantic requirements of
+that concept and the "Effects: Equivalent to:" word of power. This also removes
+the potentially surprising inconsistency that given a non-empty
+<tt>std::vector&lt;int&gt; v</tt>,
+<tt>ranges::distance(v.begin(), v.cend())</tt> is well-defined but
+<tt>ranges::distance(v.cend(), v.begin())</tt> is currently undefined.
+</p>
+
+<p><i>[2021-06-23; Reflector poll]</i></p>
+
+<p>
+Set status to Tentatively Ready after seven votes in favour during reflector poll.
+</p>
+
+<p><i>[2021-10-14 Approved at October 2021 virtual plenary. Status changed: Voting &rarr; WP.]</i></p>
+
+
+
+<p id="res-3392"><b>Proposed resolution:</b></p>
+<p>This wording is relative to <a href="https://wg21.link/n4885">N4885</a>.</p>
+
+<ol>
+<li><p>Modify 25.2 <a href="https://wg21.link/iterator.synopsis">[iterator.synopsis]</a>, header <tt>&lt;iterator&gt;</tt> synopsis, as indicated:</p>
+
+<blockquote>
+<pre>
+[&hellip;]
+
+namespace std {
+  [&hellip;]
+  <i>// 25.4.4 <a href="https://wg21.link/range.iter.ops">[range.iter.ops]</a>, range iterator operations</i>
+  namespace ranges {
+    [&hellip;]
+    <i>// 25.4.4.3 <a href="https://wg21.link/range.iter.op.distance">[range.iter.op.distance]</a>, ranges::distance</i>
+    template&lt;input_or_output_iterator I, sentinel_for&lt;I&gt; S&gt;
+      <ins>requires (!sized_sentinel_for&lt;S, I&gt;)</ins>
+        constexpr iter_difference_t&lt;I&gt; distance(I first, S last);
+    <ins>template&lt;input_or_output_iterator I, sized_sentinel_for&lt;I&gt; S&gt;
+      constexpr iter_difference_t&lt;I&gt; distance(const I&amp; first, const S&amp; last);</ins>
+    template&lt;range R&gt;
+      constexpr range_difference_t&lt;R&gt; distance(R&amp;&amp; r);
+    [&hellip;]
+  }
+  [&hellip;]
+}
+</pre>
+</blockquote>
+</li>
+
+<li><p>Modify 25.4.4.3 <a href="https://wg21.link/range.iter.op.distance">[range.iter.op.distance]</a> as indicated:</p>
+
+<blockquote>
+<pre>
+template&lt;input_or_output_iterator I, sentinel_for&lt;I&gt; S&gt;
+  <ins>requires (!sized_sentinel_for&lt;S, I&gt;)</ins>
+    constexpr iter_difference_t&lt;I&gt; ranges::distance(I first, S last);
+</pre>
+<blockquote>
+<p>
+-1- <i>Preconditions:</i> <tt>[first, last)</tt> denotes a range<del>, or <tt>[last, first)</tt> denotes a range
+and <tt>S</tt> and <tt>I</tt> model <tt>same_as&lt;S, I&gt; &amp;&amp; sized_sentinel_for&lt;S, I&gt;</tt></del>.
+<p/>
+-2- <del><i>Effects:</i> If <tt>S</tt> and <tt>I</tt> model <tt>sized_sentinel_for&lt;S, I&gt;</tt>, returns
+<tt>(last - first)</tt>; otherwise, returns the</del> <ins><i>Returns:</i> The</ins> number of increments needed to get from
+<tt>first</tt> to <tt>last</tt>.
+</p>
+</blockquote>
+<pre>
+<ins>template&lt;input_or_output_iterator I, sized_sentinel_for&lt;I&gt; S&gt;
+  constexpr iter_difference_t&lt;I&gt; ranges::distance(const I&amp; first, const S&amp; last);</ins>
+</pre>
+<blockquote>
+<p>
+<ins>-?- <i>Effects:</i> Equivalent to <tt>return last - first;</tt></ins>
+</p>
+</blockquote>
+</blockquote>
+</li>
+
+</ol>
+
+
+
+
+
+</body>
+</html>

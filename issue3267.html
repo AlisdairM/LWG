@@ -1,0 +1,363 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 3267: Rebound allocators and is_always_equal</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#New">New</a> status.</em></p>
+<h3><a name="3267" href="lwg-active.html#3267">3267</a>. Rebound allocators and <tt>is_always_equal</tt></h3>
+<p><b>Section:</b> 16.4.4.6 <a href="https://wg21.link/allocator.requirements">[allocator.requirements]</a> <b>Status:</b> <a href="lwg-active.html#New">New</a>
+ <b>Submitter:</b> FrankHB1989 <b>Opened:</b> 2019-08-27 <b>Last modified:</b> 2023-01-14</p>
+<p><b>Priority: </b>4
+</p>
+<p><b>View other</b> <a href="lwg-index-open.html#allocator.requirements">active issues</a> in [allocator.requirements].</p>
+<p><b>View all other</b> <a href="lwg-index.html#allocator.requirements">issues</a> in [allocator.requirements].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#New">New</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+[allocator.requirements] does not mention the interaction between <tt>is_always_equal</tt> 
+and allocator rebinding. As the result, a rebound allocator may have different 
+<tt>is_always_equal::value</tt> to the original allocator.
+<p/>
+Further, for an allocator type <tt>X</tt> satisfying 
+<tt>std::allocator_type&lt;X&gt;::is_always_equal::value == true</tt>, rebound allocators 
+of <tt>X</tt> with same type are not guaranteed equal.
+<p/>
+Consider:
+</p>
+<ol>
+<li><p><tt>X</tt> is used as an allocator for <tt>value_type</tt> used in a node-based container;</p></li>
+<li><p><tt>Y</tt> is the rebound allocator type for the node type used in the implementation;</p></li>
+<li><p><tt>b1</tt> and <tt>b2</tt> are values of <tt>Y</tt> from different allocator objects.</p></li>
+</ol>
+<p>
+Then, <tt>std::allocator_type&lt;X&gt;::is_always_equal::value == true</tt> does not necessarily 
+imply <tt>b1 == b2</tt>.
+<p/>
+Since some of containers in the standard have already explicitly relied on <tt>is_always_equal</tt> 
+of allocators for their <tt>value_type</tt> (notably, in the exception specification of the move 
+assignment), this can cause subtle problems.
+<p/>
+In general, the implementation of the move assignment operator of such a container can not avoid 
+allocation for new nodes when <tt>!std::allocator_traits&lt;Y&gt;::propagate_on_container_move_assignment::value 
+&amp;&amp; b1 != b2</tt>. This can throw, and it can clash with the required exception specification 
+based on <tt>std::allocator_traits&lt;value_type&gt;::is_always_equal</tt>:
+</p>
+<blockquote><pre>
+#include &lt;utility&gt;
+#include &lt;memory&gt;
+#include &lt;new&gt;
+#include &lt;map&gt;
+#include &lt;functional&gt; 
+#include &lt;type_traits&gt; 
+
+using K = int;
+using V = int;
+using P = std::pair&lt;const K, V&gt;; 
+
+bool stop_alloc; 
+
+template&lt;typename T&gt;
+struct AT
+{
+  using value_type = T; 
+
+  std::shared_ptr&lt;void&gt; sp = {}; 
+
+  template&lt;typename U&gt;
+  struct rebind
+  {
+    using other = AT&lt;U&gt;;
+  }; 
+
+  using is_always_equal = std::is_same&lt;T, P&gt;; 
+
+  AT() : sp(is_always_equal::value ? nullptr : new T*()) {}
+
+  AT(const AT&amp; a) = default;
+
+  template&lt;typename U&gt;
+  AT(const AT&lt;U>&amp; a) noexcept : sp(a.sp) {} 
+
+  T* allocate(std::size_t size)
+  {
+    if (stop_alloc)
+      throw std::bad_alloc();
+    return static_cast&lt;T*&gt;(::operator new(size * sizeof(T)));
+  } 
+
+  void deallocate(T* p, std::size_t)
+  {
+    ::operator delete(p);
+  }
+
+  friend bool operator==(const AT&amp; x, const AT&amp; y) noexcept
+  {
+    return !x.sp.owner_before(y.sp) &amp;&amp; !y.sp.owner_before(x.sp);
+  } 
+
+  friend bool operator!=(const AT&amp; x, const AT&amp; y) noexcept 
+  {
+    return !(x == y);
+  }
+
+};
+
+using A = AT&lt;P&gt;; 
+
+int main()
+{
+  // Some sanity checks:
+  static_assert(std::is_same_v&lt;A::template rebind&lt;A::value_type&gt;::other, A&gt;);
+  // For any U:
+  using U = int;
+  static_assert(std::is_same_v&lt;A::template rebind&lt;U&gt;::other::template rebind&lt;A::value_type&gt;::other, A&gt;); 
+
+  using C = std::less&lt;&gt;;
+  using M = std::map&lt;K, V, C, A&gt;; 
+
+  // As required by the current wording of the container move operator:
+  using always_equal = std::allocator_traits&lt;A&gt;::is_always_equal;
+  constexpr bool std_nothrow = always_equal::value &amp;&amp; std::is_nothrow_move_assignable_v&lt;C&gt;;
+  static_assert(std_nothrow);
+
+  // For conforming implementations:
+  // static_assert(!(std_nothrow &amp;&amp; !std::is_nothrow_move_assignable&lt;M&gt;::value)); 
+
+  M m{{K(), V()}}, m2;
+  auto a = m.get_allocator(); 
+
+  a.sp = std::make_shared&lt;int&gt;(42);
+  stop_alloc = true;
+
+  try
+  {
+    // Call terminate with conforming implementations. This does not work on libstdc++.
+    m2 = std::move(m);
+    // For libstdc++, terminate on allocator-extended move constructor call.
+    //    M m3(std::move(m), a);
+  }
+  catch(...)
+  {}
+}
+</pre></blockquote>
+
+<p><i>[2019-10 Priority set to 4 after reflector discussion]</i></p>
+
+
+<p>
+<strong>Previous resolution [SUPERSEDED]:</strong>
+</p>
+<blockquote class="note">
+<p>This wording is relative to <a href="https://wg21.link/N4830">N4830</a>.</p>
+
+<blockquote class="note">
+<p>
+[<i>Drafting note:</i> Additional questions: Is it necessary to ensure that<br/>
+<tt>XX::propagate_on_container_copy_assignment::value == YY::propagate_on_container_copy_assignment::value</tt>
+is <tt>true</tt> as well?]
+</p>
+</blockquote>
+
+<ol>
+<li><p>Modify 16.4.4.6 <a href="https://wg21.link/allocator.requirements">[allocator.requirements]</a>, Table [tab:cpp17.allocator] 
+"<tt><i>Cpp17Allocator</i></tt> requirements" as indicated:</p>
+<blockquote>
+<table border="1">
+<caption>Table 34 &mdash; <tt><i>Cpp17Allocator</i></tt> requirements [tab:cpp17.allocator]</caption>
+<tr>
+<th>Expression</th>
+<th>Return type</th>
+<th>Assertion&#47;note<br/>pre-&#47;post-condition</th>
+<th>Default</th>
+</tr>
+
+<tr>
+<td colspan="4" align="center">
+<tt>&hellip;</tt>
+</td>
+</tr>
+
+<tr>
+<td>
+<tt>typename<br/>
+X::template<br/>
+rebind&lt;U&gt;::other</tt>
+</td>
+<td>
+<tt>Y</tt>
+</td>
+<td>
+For all <tt>U</tt> (including <tt>T</tt>),<br/>
+<tt>Y::template<br/>
+rebind&lt;T&gt;::other</tt> is <tt>X</tt>.<br/>
+<ins><tt>XX::is_always_equal::value == YY::is_always_equal::value</tt><br/>
+is <tt>true</tt>.</ins>
+</td>
+<td>
+See Note A,<br/>
+below.
+</td>
+</tr>
+
+<tr>
+<td colspan="4" align="center">
+<tt>&hellip;</tt>
+</td>
+</tr>
+
+</table>
+</blockquote>
+</li>
+</ol>
+</blockquote>
+
+<p><i>[2022-04-24; Daniel rebases wording on <a href="https://wg21.link/N4910">N4910</a>]</i></p>
+
+
+<p>
+<strong>Previous resolution [SUPERSEDED]:</strong>
+</p>
+<blockquote class="note">
+<p>
+This wording is relative to <a href="https://wg21.link/N4910">N4910</a>.
+</p>
+
+<blockquote class="note">
+<p>
+[<i>Drafting note:</i> Additional questions: Is it necessary to ensure that<br/>
+<tt>XX::propagate_on_container_copy_assignment::value == YY::propagate_on_container_copy_assignment::value</tt>
+is <tt>true</tt> as well?]
+</p>
+</blockquote>
+
+<ol>
+<li><p>Modify 16.4.4.6 <a href="https://wg21.link/allocator.requirements">[allocator.requirements]</a> as indicated:</p>
+<blockquote>
+<pre>
+typename X::template rebind&lt;U&gt;::other
+</pre>
+<blockquote>
+<p>
+-16- <i>Result:</i> <tt>Y</tt>
+<p/>
+-17- <i>Postconditions:</i> For all <tt>U</tt> (including <tt>T</tt>), <tt>Y::template rebind&lt;T&gt;::other</tt> 
+is <tt>X</tt>. <ins><tt>XX::is_always_equal::value == YY::is_always_equal::value</tt> is <tt>true</tt>.</ins>
+<p/>
+-18- <i>Remarks:</i> If <tt>Allocator</tt> is a class template instantiation of the form 
+<tt>SomeAllocator&lt;T, Args&gt;</tt>, where <tt>Args</tt> is zero or more type arguments, and 
+<tt>Allocator</tt> does not supply a <tt>rebind</tt> member template, the standard <tt>allocator_traits</tt> 
+template uses <tt>SomeAllocator&lt;U, Args&gt;</tt> in place of <tt>Allocator::rebind&lt;U&gt;::other</tt> 
+by default. For allocator types that are not template instantiations of the above form, no default is provided.
+<p/>
+-19- [<i>Note 1</i>: The member class template <tt>rebind</tt> of <tt>X</tt> is effectively a typedef template. 
+In general, if the name <tt>Allocator</tt> is bound to <tt>SomeAllocator&lt;T&gt;</tt>, then 
+<tt>Allocator::rebind&lt;U&gt;::other</tt> is the same type as <tt>SomeAllocator&lt;U&gt;</tt>, where 
+<tt>SomeAllocator&lt;T&gt;::value_type</tt> is <tt>T</tt> and <tt>SomeAllocator&lt;U&gt;::value_type</tt> 
+is <tt>U</tt>. &mdash; <i>end note</i>]
+</p>
+</blockquote>
+</blockquote>
+</li>
+</ol>
+</blockquote>
+
+<p><i>[2023-01-08; Jiang An comments and provides improved wording]</i></p>
+
+<p>
+Exception specifications of some container operations (added by <a href="https://wg21.link/N4258">N4258</a> and LWG <a href="lwg-defects.html#3778">3778</a>) 
+are specified with the propagation properties of template parameter <tt>Allocator</tt>. However, for node-based 
+containers and <tt>std::deque</tt> (and common implementations of <tt>std::vector&lt;bool, A&gt;</tt>), 
+rebound allocators are needed to be propagated, and common implementations are currently detecting the propagation 
+properties of rebound allocators.
+<p/>
+I think if the allocator provided as template argument and the rebound have different propagation properties and 
+behaves differently on propagation, then it is difficult or impossible for implementations to follow the current 
+exception specifications.
+</p>
+
+
+<p id="res-3267"><b>Proposed resolution:</b></p>
+<p>
+This wording is relative to <a href="https://wg21.link/N4917">N4917</a>.
+</p>
+
+<ol>
+<li><p>Modify 16.4.4.6 <a href="https://wg21.link/allocator.requirements">[allocator.requirements]</a> as indicated:</p>
+<blockquote>
+<pre>
+typename X::template rebind&lt;U&gt;::other
+</pre>
+<blockquote>
+<p>
+-16- <i>Result:</i> <tt>Y</tt>
+<p/>
+-17- <i>Postconditions:</i> For all <tt>U</tt> (including <tt>T</tt>), <tt>Y::template rebind&lt;T&gt;::other</tt> 
+is <tt>X</tt>. <ins>All of <tt>XX::is_always_equal::value == YY::is_always_equal::value</tt>, 
+<tt>XX::propagate_on_container_copy_assignment::value == YY::propagate_on_container_copy_assignment::value</tt>,  
+<tt>XX::propagate_on_container_move_assignment::value == YY::propagate_on_container_move_assignment::value</tt>, and  
+<tt>XX::propagate_on_container_swap::value == YY::propagate_on_container_swap::value</tt> are <tt>true</tt>.</ins>
+<p/>
+-18- <i>Remarks:</i> If <tt>Allocator</tt> is a class template instantiation of the form 
+<tt>SomeAllocator&lt;T, Args&gt;</tt>, where <tt>Args</tt> is zero or more type arguments, and 
+<tt>Allocator</tt> does not supply a <tt>rebind</tt> member template, the standard <tt>allocator_traits</tt> 
+template uses <tt>SomeAllocator&lt;U, Args&gt;</tt> in place of <tt>Allocator::rebind&lt;U&gt;::other</tt> 
+by default. For allocator types that are not template instantiations of the above form, no default is provided.
+<p/>
+-19- [<i>Note 1</i>: The member class template <tt>rebind</tt> of <tt>X</tt> is effectively a typedef template. 
+In general, if the name <tt>Allocator</tt> is bound to <tt>SomeAllocator&lt;T&gt;</tt>, then 
+<tt>Allocator::rebind&lt;U&gt;::other</tt> is the same type as <tt>SomeAllocator&lt;U&gt;</tt>, where 
+<tt>SomeAllocator&lt;T&gt;::value_type</tt> is <tt>T</tt> and <tt>SomeAllocator&lt;U&gt;::value_type</tt> 
+is <tt>U</tt>. &mdash; <i>end note</i>]
+</p>
+</blockquote>
+</blockquote>
+</li>
+</ol>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 2497: Use of uncaught_exception()</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#New">New</a> status.</em></p>
+<h3><a name="2497" href="lwg-active.html#2497">2497</a>. Use of <tt>uncaught_exception()</tt></h3>
+<p><b>Section:</b> 31.7.6.2.4 <a href="https://wg21.link/ostream.sentry">[ostream.sentry]</a> <b>Status:</b> <a href="lwg-active.html#New">New</a>
+ <b>Submitter:</b> Roger Orr <b>Opened:</b> 2015-05-08 <b>Last modified:</b> 2020-09-06</p>
+<p><b>Priority: </b>3
+</p>
+<p><b>View all other</b> <a href="lwg-index.html#ostream.sentry">issues</a> in [ostream.sentry].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#New">New</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+In the current 31.7.6.2.4 <a href="https://wg21.link/ostream.sentry">[ostream.sentry]</a>, p4 refers to the now deprecated <tt>std::uncaught_exception()</tt>: 
+D.9 [depr.uncaught].
+</p>
+<blockquote>
+<p>
+If <tt>((os.flags() &amp; ios_base::unitbuf) &amp;&amp; !uncaught_exception() &amp;&amp; os.good())</tt> is true, calls
+<tt>os.rdbuf()->pubsync()</tt>.
+</p>
+</blockquote>
+<p>
+This needs to be changed, for example to use <tt>std::uncaught_exceptions()</tt> and to capture the value on entry and 
+compare with the saved value on exit.
+</p>
+
+<p><i>[2015-06, Telecon]</i></p>
+
+<p>
+JW: I already added an 's' here to make it use the new function, but that doesn't resolve Roger's suggestion to capture the value on entry and check it.
+</p>
+
+<p><i>[2019-03-21; Daniel comments and provides wording]</i></p>
+
+<p>
+The wording below implements Roger's suggestion.
+</p>
+
+
+<p id="res-2497"><b>Proposed resolution:</b></p>
+<p>This wording is relative to <a href="https://wg21.link/n4810">N4810</a>.</p>
+
+<ol>
+<li><p>Modify 31.7.6.2.4 <a href="https://wg21.link/ostream.sentry">[ostream.sentry]</a>, class <tt>basic_ostream::sentry</tt> synopsis, as indicated:</p>
+
+<blockquote>
+<pre>
+namespace std {
+  template&lt;class charT, class traits = char_traits&lt;charT&gt;&gt;
+  class basic_ostream&lt;charT, traits&gt;::sentry {
+    bool ok_; <i>// exposition only</i>
+    <ins>int uncaught_ = uncaught_exceptions(); <i>// exposition only</i></ins>
+  public:
+    explicit sentry(basic_ostream&lt;charT, traits&gt;&amp; os);
+    ~sentry();
+    explicit operator bool() const { return ok_; }
+    sentry(const sentry&amp;) = delete;
+    sentry&amp; operator=(const sentry&amp;) = delete;
+  };
+}
+</pre>
+<p>
+[&hellip;]
+</p>
+<pre>
+~sentry();
+</pre>
+<blockquote>
+<p>
+-4- If <tt>(os.flags() &amp; ios_base::unitbuf) &amp;&amp; <del>!</del>uncaught_exceptions() <ins>&lt;= uncaught_</ins> 
+&amp;&amp; os.good()</tt> is <tt>true</tt>, calls <tt>os.rdbuf()-&gt;pubsync()</tt>. If that function returns <tt>-1</tt>, 
+sets <tt>badbit</tt> in <tt>os.rdstate()</tt> without propagating an exception.
+</p>
+</blockquote>
+</blockquote>
+</li>
+</ol>
+
+
+
+
+
+</body>
+</html>

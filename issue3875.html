@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 3875: std::ranges::repeat_view&lt;T, IntegerClass&gt;::iterator may be ill-formed</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#WP">WP</a> status.</em></p>
+<h3><a name="3875" href="lwg-defects.html#3875">3875</a>. <tt>std::ranges::repeat_view&lt;T, IntegerClass&gt;::<i>iterator</i></tt> may be ill-formed</h3>
+<p><b>Section:</b> 26.6.5 <a href="https://wg21.link/range.repeat">[range.repeat]</a> <b>Status:</b> <a href="lwg-active.html#WP">WP</a>
+ <b>Submitter:</b> Jiang An <b>Opened:</b> 2023-02-05 <b>Last modified:</b> 2023-02-13</p>
+<p><b>Priority: </b>Not Prioritized
+</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#WP">WP</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+26.6.5.3 <a href="https://wg21.link/range.repeat.iterator">[range.repeat.iterator]</a> specifies <tt>difference_type</tt> as
+</p>
+<blockquote style="border-left: 3px solid #ccc;padding-left: 15px;">
+<pre>
+using difference_type = conditional_t&lt;<i>is-signed-integer-like</i>&lt;<i>index-type</i>&gt;,
+  <i>index-type</i>,
+  <i>IOTA-DIFF-T</i>(<i>index-type</i>)&gt;;
+</pre>
+</blockquote>
+<p>
+which always instantiates <tt><i>IOTA-DIFF-T</i>(<i>index-type</i>)</tt>, and thus possibly makes the program ill-formed when 
+<tt>index-type</tt> is an integer-class type (<tt><i>index-type</i></tt> is same as <tt>Bound</tt> in this case), because 
+<tt><i>IOTA-DIFF-T</i>(<i>index-type</i>)</tt> is specified to be <tt>iter_difference_t&lt;<i>index-type</i>&gt;</tt> 
+which may be ill-formed (26.6.4.2 <a href="https://wg21.link/range.iota.view">[range.iota.view]</a>/1.1).
+<p/>
+I think the intent is using <tt><i>index-type</i></tt> as-is without instantiating <tt><i>IOTA-DIFF-T</i></tt> when 
+<tt><i>is-signed-integer-like</i>&lt;<i>index-type</i>&gt;</tt> is <tt>true</tt>.
+<p/>
+However, when <tt>Bound</tt> is an unsigned integer-class type, it's unclear which type should the difference type be, 
+or whether <tt>repeat_view</tt> should be well-formed when the possibly intended <tt><i>IOTA-DIFF-T</i>(Bound)</tt> is ill-formed.
+</p>
+<p><i>[2023-02-09 Tim adds wording]</i></p>
+
+<p>We should reject types for which there is no usable difference type.</p>
+
+<p><i>[Issaquah 2023-02-09; LWG]</i></p>
+
+<p>Move to Immediate for C++23</p>
+
+<p><i>[2023-02-13 Status changed: Immediate &rarr; WP.]</i></p>
+
+
+
+<p id="res-3875"><b>Proposed resolution:</b></p>
+<p>
+This wording is relative to <a href="https://wg21.link/N4928">N4928</a>.
+</p>
+
+<ol>
+<li><p>Modify 26.2 <a href="https://wg21.link/ranges.syn">[ranges.syn]</a>, header <tt>&lt;ranges&gt;</tt> synopsis, as indicated:</p>
+<blockquote>
+<pre>
+// [&hellip;]
+namespace std::ranges {
+  template&lt;move_constructible W, semiregular Bound = unreachable_sentinel_t&gt;
+    requires <ins><i>see below</i></ins><del>(is_object_v&lt;W> &amp;&amp; same_as&lt;W, remove_cv_t&lt;W&gt;&gt; &amp;&amp;
+              (<i>is-integer-like</i>&lt;Bound> || same_as&lt;Bound, unreachable_sentinel_t&gt;))</del>
+  class repeat_view;
+</pre>
+</blockquote>
+</li>
+
+<li><p>Modify 26.6.5.2 <a href="https://wg21.link/range.repeat.view">[range.repeat.view]</a> as indicated:</p>
+<blockquote>
+<pre>
+namespace std::ranges {
+  
+<ins>  template&lt;class T&gt;
+  concept <i>integer-like-with-usable-difference-type</i> =   //<i>exposition only</i>
+    <i>is-signed-integer-like</i>&lt;T> || (<i>is-integer-like</i>&lt;T> &amp;&amp; weakly_incrementable&lt;T>);</ins>
+
+  template&lt;move_constructible W, semiregular Bound = unreachable_sentinel_t&gt;
+    requires (is_object_v&lt;W> &amp;&amp; same_as&lt;W, remove_cv_t&lt;W&gt;&gt; &amp;&amp;
+              (<i><del>is-integer-like</del><ins>integer-like-with-usable-difference-type</ins></i>&lt;Bound> || same_as&lt;Bound, unreachable_sentinel_t&gt;))
+  class repeat_view {
+    [&hellip;]
+  };
+}
+</pre>
+</blockquote>
+</li>
+
+<li><p>Modify 26.6.5.3 <a href="https://wg21.link/range.repeat.iterator">[range.repeat.iterator]</a> as indicated:</p>
+<blockquote>
+<pre>
+namespace std::ranges {
+  template&lt;move_constructible W, semiregular Bound<del> = unreachable_sentinel_t</del>&gt;
+    requires (is_object_v&lt;W> &amp;&amp; same_as&lt;W, remove_cv_t&lt;W&gt;&gt; &amp;&amp;
+              (<i><del>is-integer-like</del><ins>integer-like-with-usable-difference-type</ins></i>&lt;Bound> || same_as&lt;Bound, unreachable_sentinel_t&gt;))
+  class repeat_view&lt;W, Bound>::<i>iterator</i> {
+  private:
+    using <i>index-type</i> =                  <i>// exposition only</i>
+      conditional_t&lt;same_as&lt;Bound, unreachable_sentinel_t&gt;, ptrdiff_t, Bound&gt;;
+    [&hellip;]
+  public:
+    [&hellip;]
+    using difference_type = <ins><i>see below</i></ins><del>conditional_t&lt;<i>is-signed-integer-like</i>&lt;<i>index-type</i>&gt;,
+        <i>index-type</i>,
+        <i>IOTA-DIFF-T</i>(<i>index-type</i>)></del>;
+    [&hellip;]
+  };
+}
+</pre>
+</blockquote>
+<p>
+<ins>-?- If <tt><i>is-signed-integer-like</i>&lt;<i>index-type</i>&gt;</tt> is <tt>true</tt>,
+the member <i>typedef-name</i> <tt>difference_type</tt> denotes <tt><i>index-type</i></tt>.
+Otherwise, it denotes <tt><i>IOTA-DIFF-T</i>(<i>index-type</i>)</tt> 
+(26.6.4.2 <a href="https://wg21.link/range.iota.view">[range.iota.view]</a>).</ins>
+</p>
+</li>
+</ol>
+
+
+
+
+
+
+</body>
+</html>

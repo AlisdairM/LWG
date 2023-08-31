@@ -1,0 +1,385 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 2818: "::std::" everywhere rule needs tweaking</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#WP">WP</a> status.</em></p>
+<h3><a name="2818" href="lwg-defects.html#2818">2818</a>. <tt>"::std::"</tt> everywhere rule needs tweaking</h3>
+<p><b>Section:</b> 16.4.2.2 <a href="https://wg21.link/contents">[contents]</a> <b>Status:</b> <a href="lwg-active.html#WP">WP</a>
+ <b>Submitter:</b> Tim Song <b>Opened:</b> 2016-11-11 <b>Last modified:</b> 2021-06-07</p>
+<p><b>Priority: </b>2
+</p>
+<p><b>View all other</b> <a href="lwg-index.html#contents">issues</a> in [contents].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#WP">WP</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+[contents]/3 says
+</p>
+<blockquote><p>
+Whenever a name <tt>x</tt> defined in the standard library is mentioned, the name <tt>x</tt> is assumed to be fully 
+qualified as <tt>::std::x</tt>, unless explicitly described otherwise. For example, if the <i>Effects</i> section 
+for library function <tt>F</tt> is described as calling library function <tt>G</tt>, the function <tt>::std::G</tt> is meant.
+</p></blockquote>
+<p>
+With the introduction of nested namespaces inside <tt>std</tt>, this rule needs tweaking. For instance, 
+<tt>time_point_cast</tt>'s <i>Returns</i> clause says "<tt>time_point&lt;Clock, 
+ToDuration&gt;(duration_cast&lt;ToDuration&gt;(t.time_since_epoch()))</tt>"; that reference to <tt>duration_cast</tt> 
+obviously means <tt>::std::chrono::duration_cast</tt>, not <tt>::std::duration_cast</tt>, which doesn't exist.
+</p>
+
+<p><i>[Issues Telecon 16-Dec-2016]</i></p>
+
+<p>Priority 2; Jonathan to provide wording</p>
+
+<p><i>[2019 Cologne Wednesday night]</i></p>
+
+<p>Geoffrey suggested editing 16.4.2.2 <a href="https://wg21.link/contents">[contents]</a>/2 to mention the case when we're defining things in a sub-namespace.</p>
+<p>Jonathan to word this.</p>
+
+<p><i>[2020-02-14, Prague; Walter provides wording]</i></p>
+
+<p>
+</p>
+
+<p><i>[2020-10-02; Issue processing telecon: new wording from Jens]</i></p>
+
+<p>Use "Simplified suggestion" in 13 June 2020 email from Jens.</p>
+
+<p><strong>Previous resolution [SUPERSEDED]:</strong></p>
+<blockquote class="note">
+<p>This wording is relative to <a href="https://wg21.link/n4849">N4849</a>.</p>
+
+<ol>
+<li><p>Modify 16.4.2.2 <a href="https://wg21.link/contents">[contents]</a> as indicated:</p>
+
+<blockquote>
+<p>
+-3- <del>Whenever a name <tt>x</tt> defined in the standard library is mentioned, the name <tt>x</tt> is assumed to be fully qualified
+as <tt>::std::x</tt>, unless explicitly described otherwise. For example, if the <i>Effects:</i> element for library function <tt>F</tt>
+is described as calling library function <tt>G</tt>, the function <tt>::std::G</tt> is meant.</del><ins>Let <tt>x</tt> be a name
+specified by the standard library via a declaration in namespace <tt>std</tt> or in a subnamespace of namespace <tt>std</tt>.
+Whenever <tt>x</tt> is used as an unqualified name in a further specification, it is assumed to correspond
+to the same <tt>x</tt> that would be found via unqualified name lookup (6.5.3 <a href="https://wg21.link/basic.lookup.unqual">[basic.lookup.unqual]</a>) performed at that point 
+of use. Similarly, whenever <tt>x</tt> is used as a qualified name in a further specification, it is assumed to correspond
+to the same <tt>x</tt> that would be found via qualified name lookup (6.5.5 <a href="https://wg21.link/basic.lookup.qual">[basic.lookup.qual]</a>) performed at that point 
+of use. [<i>Note:</i> Such lookups can never fail in a well-formed program. &mdash; <i>end note</i>] 
+[<i>Example:</i> If an <i>Effects:</i> element for a library function <tt>F</tt> specifies that library function <tt>G</tt>
+is to be used, the function <tt>::std::G</tt> is intended. &mdash; <i>end example</i>]</ins>
+</p>
+</blockquote>
+</li>
+</ol>
+</blockquote>
+
+<p><strong>Previous resolution [SUPERSEDED]:</strong></p>
+<blockquote class="note">
+<p>This wording is relative to <a href="https://wg21.link/n4849">N4849</a>.</p>
+
+<ol>
+<li><p>Modify 16.4.2.2 <a href="https://wg21.link/contents">[contents]</a> as indicated:</p>
+
+<blockquote>
+<p><i>[Drafting note:
+Consider adding a note clarifying that the unqualified lookup
+does not perform ADL.
+]</i></p>
+
+<p>
+-3- <del>Whenever a name <tt>x</tt> defined in the standard library is mentioned, the name <tt>x</tt> is assumed to be fully qualified
+as <tt>::std::x</tt>, unless explicitly described otherwise. For example, if the <i>Effects:</i> element for library function <tt>F</tt>
+is described as calling library function <tt>G</tt>, the function <tt>::std::G</tt> is meant.</del>
+<ins>
+Whenever an unqualified name <tt>x</tt> is used
+in the specification of a declaration <tt>D</tt>
+in clauses 16-32,
+its meaning is established as-if by performing unqualified name lookup
+(6.5.3 <a href="https://wg21.link/basic.lookup.unqual">[basic.lookup.unqual]</a>) in the context of <tt>D</tt>.
+Similarly, the meaning of a qualified-id is established as-if by
+performing qualified name lookup (6.5.5 <a href="https://wg21.link/basic.lookup.qual">[basic.lookup.qual]</a>)
+in the context of <tt>D</tt>.
+<i>[Example:</i>
+The reference to <tt>is_array_v</tt> in the
+specification of <tt>std::to_array</tt> (24.3.7.6 <a href="https://wg21.link/array.creation">[array.creation]</a>)
+refers to <tt>::std::is_array_v</tt>.
+-- <i>end example]</i>
+<i>[Note:</i>
+Operators in expressions 12.2.2.3 <a href="https://wg21.link/over.match.oper">[over.match.oper]</a>
+are not so constrained; see 16.4.6.4 <a href="https://wg21.link/global.functions">[global.functions]</a>.
+-- <i>end note]</i>
+</ins>
+</p>
+</blockquote>
+</li>
+</ol>
+</blockquote>
+
+<p><i>[2020-11-04; Jens provides improved wording]</i></p>
+
+
+<p><i>[2020-11-06; Reflector discussion]</i></p>
+
+<p>
+Casey suggests to insert "or Annex D" after "in clauses 16-32". This insertion has been performed during
+reflector discussions immediately because it seemed editorial.
+</p>
+
+<p><i>[2020-11-15; Reflector poll]</i></p>
+
+<p>
+Set priority status to Tentatively Ready after seven votes in favour during reflector discussions.
+</p>
+
+<p><i>[2020-11-22, Tim Song reopens]</i></p>
+
+<p>
+The references to get in 26.5.4.1 <a href="https://wg21.link/range.subrange.general">[range.subrange.general]</a> and
+26.7.22.2 <a href="https://wg21.link/range.elements.view">[range.elements.view]</a> need to be qualified as they would otherwise
+refer to <tt>std::ranges::get</tt> instead of <tt>std::get</tt>. Additionally,
+ [expos.only.func] needs to clarify that the lookup there also takes
+place from within namespace <tt>std</tt>.
+</p>
+
+<p><strong>Previous resolution [SUPERSEDED]:</strong></p>
+<blockquote class="note">
+<p>This wording is relative to <a href="https://wg21.link/n4868">N4868</a>.</p>
+
+<ol>
+<li><p>Modify 16.4.2.2 <a href="https://wg21.link/contents">[contents]</a> as indicated:</p>
+
+<blockquote>
+<p>
+-3- <del>Whenever a name <tt>x</tt> defined in the standard library is mentioned, the name <tt>x</tt> 
+is assumed to be fully qualified as <tt>::std::x</tt>, unless explicitly described otherwise. For example, 
+if the <i>Effects:</i> element for library function <tt>F</tt> is described as calling library function 
+<tt>G</tt>, the function <tt>::std::G</tt> is meant.</del>
+<ins>Whenever an unqualified name <tt>x</tt> is used in the specification of a declaration <tt>D</tt>
+in clauses 16-32 or Annex D, its meaning is established as-if by performing unqualified name lookup
+(6.5.3 <a href="https://wg21.link/basic.lookup.unqual">[basic.lookup.unqual]</a>) in the context of <tt>D</tt>. [<i>Note ?:</i> Argument-dependent lookup 
+is not performed. &mdash; <i>end note</i>] Similarly, the meaning of a qualified-id is established as-if by 
+performing qualified name lookup (6.5.5 <a href="https://wg21.link/basic.lookup.qual">[basic.lookup.qual]</a>) in the context of <tt>D</tt>.
+[<i>Example:</i> The reference to <tt>is_array_v</tt> in the specification of <tt>std::to_array</tt> 
+(24.3.7.6 <a href="https://wg21.link/array.creation">[array.creation]</a>) refers to <tt>::std::is_array_v</tt>. &mdash; <i>end example</i>]
+[<i>Note ?:</i> Operators in expressions (12.2.2.3 <a href="https://wg21.link/over.match.oper">[over.match.oper]</a>) are not so constrained; see 
+16.4.6.4 <a href="https://wg21.link/global.functions">[global.functions]</a>. &mdash; <i>end note</i>]
+</ins>
+</p>
+</blockquote>
+</li>
+
+<li><p>Remove  [fs.req.namespace] in its entirety:</p>
+
+<blockquote>
+<p>
+<del><b>29.11.3.2 Namespaces and headers [fs.req.namespace]</b></del>
+<p/>
+<del>-1- Unless otherwise specified, references to entities described in subclause 31.12 <a href="https://wg21.link/filesystems">[filesystems]</a> 
+are assumed to be qualified with <tt>::std::filesystem::</tt>.</del>
+</p>
+</blockquote>
+</li>
+</ol>
+</blockquote>
+
+<p><i>[2021-05-20; Jens Maurer provides an updated proposed resolution]</i></p>
+
+
+<p><i>[2021-05-23; Daniel provides some additional tweaks to the updated proposed resolution]</i></p>
+
+
+<p><i>[2021-05-24; Reflector poll]</i></p>
+
+<p>
+Set status to Tentatively Ready after six votes in favour during reflector poll.
+</p>
+
+<p><i>[2021-06-07 Approved at June 2021 virtual plenary. Status changed: Voting &rarr; WP.]</i></p>
+
+
+
+<p id="res-2818"><b>Proposed resolution:</b></p>
+<p>This wording is relative to <a href="https://wg21.link/n4885">N4885</a>.</p>
+
+<ol>
+<li><p>Modify  [expos.only.func] as indicated:</p>
+
+<blockquote>
+<p>
+-2- The following are defined for exposition only to aid in the specification of the library:
+</p>
+<blockquote>
+<pre>
+<ins>namespace std {</ins>
+  template&lt;class T&gt; constexpr decay_t&lt;T&gt; <i>decay-copy</i>(T&amp;&amp; v)
+      noexcept(is_nothrow_convertible_v&lt;T, decay_t&lt;T&gt;&gt;) <i>// exposition only</i>
+    { return std::forward&lt;T&gt;(v); }
+    
+  constexpr auto <i>synth-three-way</i> =
+    []&lt;class T, class U&gt;(const T&amp; t, const U&amp; u)
+      requires requires {
+      { t &lt; u } -&gt; <i>boolean-testable</i>;
+      { u &lt; t } -&gt; <i>boolean-testable</i>;
+      }
+    {
+      if constexpr (three_way_comparable_with&lt;T, U&gt;) {
+        return t &lt;=&gt; u;
+      } else {
+        if (t &lt; u) return weak_ordering::less;
+        if (u &lt; t) return weak_ordering::greater;
+        return weak_ordering::equivalent;
+      }
+    };
+
+  template&lt;class T, class U=T&gt;
+  using <i>synth-three-way-result</i> = decltype(<i>synth-three-way</i>(declval&lt;T&amp;&gt;(), declval&lt;U&amp;&gt;()));
+<ins>}</ins>
+</pre>
+</blockquote>
+</blockquote>
+</li>
+
+<li><p>Modify 16.4.2.2 <a href="https://wg21.link/contents">[contents]</a> as indicated:</p>
+
+<blockquote>
+<p>
+-3- <del>Whenever a name <tt>x</tt> defined in the standard library is mentioned, the name <tt>x</tt> 
+is assumed to be fully qualified as <tt>::std::x</tt>, unless explicitly described otherwise. For example, 
+if the <i>Effects:</i> element for library function <tt>F</tt> is described as calling library function 
+<tt>G</tt>, the function <tt>::std::G</tt> is meant.</del>
+<ins>Whenever an unqualified name <tt>x</tt> is used in the specification of a declaration <tt>D</tt>
+in clauses 16-32 or Annex D, its meaning is established as-if by performing unqualified name lookup
+(6.5.3 <a href="https://wg21.link/basic.lookup.unqual">[basic.lookup.unqual]</a>) in the context of <tt>D</tt>. [<i>Note ?:</i> Argument-dependent lookup 
+is not performed. &mdash; <i>end note</i>] Similarly, the meaning of a <i>qualified-id</i> is established as-if by 
+performing qualified name lookup (6.5.5 <a href="https://wg21.link/basic.lookup.qual">[basic.lookup.qual]</a>) in the context of <tt>D</tt>.
+[<i>Example:</i> The reference to <tt>is_array_v</tt> in the specification of <tt>std::to_array</tt> 
+(24.3.7.6 <a href="https://wg21.link/array.creation">[array.creation]</a>) refers to <tt>::std::is_array_v</tt>. &mdash; <i>end example</i>]
+[<i>Note ?:</i> Operators in expressions (12.2.2.3 <a href="https://wg21.link/over.match.oper">[over.match.oper]</a>) are not so constrained; see 
+16.4.6.4 <a href="https://wg21.link/global.functions">[global.functions]</a>. &mdash; <i>end note</i>]
+</ins>
+</p>
+</blockquote>
+</li>
+
+<li><p>Modify 26.5.4.1 <a href="https://wg21.link/range.subrange.general">[range.subrange.general]</a> as indicated:</p>
+
+<blockquote><pre>
+template&lt;class T&gt;
+  concept <i>pair-like</i> =              <i>// exposition only</i>
+    !is_reference_v&lt;T&gt; &amp;&amp; requires(T t) {
+      typename tuple_size&lt;T&gt;::type; <i>// ensures tuple_size&lt;T&gt; is complete</i>
+      requires derived_from&lt;tuple_size&lt;T&gt;, integral_constant&lt;size_t, 2&gt;&gt;;
+      typename tuple_element_t&lt;0, remove_const_t&lt;T&gt;&gt;;
+      typename tuple_element_t&lt;1, remove_const_t&lt;T&gt;&gt;;
+      { <ins>std::</ins>get&lt;0&gt;(t) } -&gt; convertible_to&lt;const tuple_element_t&lt;0, T&gt;&amp;&gt;;
+      { <ins>std::</ins>get&lt;1&gt;(t) } -&gt; convertible_to&lt;const tuple_element_t&lt;1, T&gt;&amp;&gt;;
+    };
+</pre></blockquote>
+</li>
+
+<li><p>Modify 26.7.22.2 <a href="https://wg21.link/range.elements.view">[range.elements.view]</a> as indicated:</p>
+
+<blockquote><pre>
+template&lt;class T, size_t N&gt;
+  concept <i>has-tuple-element</i> = <i>// exposition only</i>
+    requires(T t) {
+      typename tuple_size&lt;T&gt;::type;
+      requires N &lt;tuple_size_v&lt;T&gt;;
+      typename tuple_element_t&lt;N, T&gt;;
+      { <ins>std::</ins>get&lt;N&gt;(t) } -&gt; convertible_to&lt;const tuple_element_t&lt;N, T&gt;&amp;&gt;;
+    };
+</pre></blockquote>
+</li>
+
+<li><p>Modify 26.7.22.3 <a href="https://wg21.link/range.elements.iterator">[range.elements.iterator]</a> as indicated:</p>
+
+<blockquote>
+<p>
+-2- The member <i>typedef-name</i> <tt>iterator_category</tt> is defined if and only if <tt><i>Base</i></tt> 
+models <tt>forward_range</tt>. In that case, <tt>iterator_category</tt> is defined as follows: [&hellip;]
+</p>
+<ol style="list-style-type: none">
+<li><p>(2.1) &mdash; If <tt><ins>std::</ins>get&lt;N&gt;(*<i>current_</i>)</tt> is an rvalue, <tt>iterator_category</tt> 
+denotes <tt>input_iterator_tag</tt>.</p></li>
+<li><p>[&hellip;]</p></li>
+</ol>
+<pre>
+static constexpr decltype(auto) <i>get-element</i>(const iterator_t&lt;<i>Base</i>&gt;&amp; i); <i>// exposition only</i>
+</pre>
+<blockquote>
+<p>
+-3- <i>Effects:</i> Equivalent to:
+</p>
+<blockquote>
+<pre>
+if constexpr (is_reference_v&lt;range_reference_t&lt;<i>Base</i>&gt;&gt;) {
+  return <ins>std::</ins>get&lt;N&gt;(*i);
+} else {
+  using E = remove_cv_t&lt;tuple_element_t&lt;N, range_reference_t&lt;<i>Base</i>&gt;&gt;&gt;;
+  return static_cast&lt;E&gt;(<ins>std::</ins>get&lt;N&gt;(*i));
+}
+</pre>
+</blockquote>
+</blockquote>
+</blockquote>
+</li>
+
+<li><p>Remove  [fs.req.namespace] in its entirety:</p>
+
+<blockquote>
+<p>
+<del><b>29.11.3.2 Namespaces and headers [fs.req.namespace]</b></del>
+<p/>
+<del>-1- Unless otherwise specified, references to entities described in subclause 31.12 <a href="https://wg21.link/filesystems">[filesystems]</a> 
+are assumed to be qualified with <tt>::std::filesystem::</tt>.</del>
+</p>
+</blockquote>
+</li>
+
+</ol>
+
+
+
+
+
+</body>
+</html>

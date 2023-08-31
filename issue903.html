@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 903: back_insert_iterator issue</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#NAD">NAD</a> status.</em></p>
+<h3><a name="903" href="lwg-closed.html#903">903</a>. <tt>back_insert_iterator</tt> issue</h3>
+<p><b>Section:</b> 25.5.2.2 <a href="https://wg21.link/back.insert.iterator">[back.insert.iterator]</a> <b>Status:</b> <a href="lwg-active.html#NAD">NAD</a>
+ <b>Submitter:</b> Dave Abrahams <b>Opened:</b> 2008-09-19 <b>Last modified:</b> 2016-01-28</p>
+<p><b>Priority: </b>Not Prioritized
+</p>
+<p><b>View all other</b> <a href="lwg-index.html#back.insert.iterator">issues</a> in [back.insert.iterator].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#NAD">NAD</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+I just noticed this; don't know how far the problem(?) extends or
+whether it's new or existing: <tt>back_insert_iterator</tt>'s <tt>operator*</tt> is not
+<tt>const</tt>, so you can't dereference a <tt>const</tt> one.
+</p>
+
+<p><i>[
+Post Summit Daniel adds:
+]</i></p>
+
+
+<blockquote>
+<p>
+If done, this change should be applied for <tt>front_insert_iterator</tt>,
+<tt>insert_iterator</tt>, <tt>ostream_iterator</tt>, and <tt>ostreambuf_iterator</tt> as well.
+</p>
+</blockquote>
+
+<p><i>[
+Batavia (2009-05):
+]</i></p>
+
+<blockquote>
+<p>
+Alisdair notes that these all are output iterators.
+Howard points out that <tt>++*i</tt>
+would no longer work if we made this change.
+</p>
+<p>
+Move to NAD.
+</p>
+</blockquote>
+
+<p><i>[
+2009-05-25 Daniel adds:
+]</i></p>
+
+
+<ol>
+<li>
+If <a href="lwg-closed.html#1009">1009</a> is accepted, <tt>OutputIterator</tt> does no longer support post increment.
+</li>
+<li>
+To support backward compatibility a second overload of <tt>operator*</tt>
+can be added.
+Note that the <tt>HasDereference</tt> concept (and the <tt>HasDereference</tt> part of concept
+<tt>Iterator</tt>) was specifically refactored to cope with optional const
+qualification and
+to properly reflect the dual nature of built-in <tt>operator*</tt> as of
+12.6 <a href="https://wg21.link/over.literal">[over.literal]</a>/6.
+</li>
+</ol>
+
+
+<p id="res-903"><b>Proposed resolution:</b></p>
+
+
+
+
+
+</body>
+</html>

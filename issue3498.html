@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 3498: Inconsistent noexcept-specifiers for basic_syncbuf</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#WP">WP</a> status.</em></p>
+<h3><a name="3498" href="lwg-defects.html#3498">3498</a>. Inconsistent <tt>noexcept</tt>-specifiers for <tt>basic_syncbuf</tt></h3>
+<p><b>Section:</b> 31.11.2.1 <a href="https://wg21.link/syncstream.syncbuf.overview">[syncstream.syncbuf.overview]</a>, 31.11.2.3 <a href="https://wg21.link/syncstream.syncbuf.assign">[syncstream.syncbuf.assign]</a> <b>Status:</b> <a href="lwg-active.html#WP">WP</a>
+ <b>Submitter:</b> Jonathan Wakely <b>Opened:</b> 2020-11-10 <b>Last modified:</b> 2021-10-14</p>
+<p><b>Priority: </b>3
+</p>
+<p><b>View all other</b> <a href="lwg-index.html#syncstream.syncbuf.overview">issues</a> in [syncstream.syncbuf.overview].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#WP">WP</a> status.</p>
+<p><b>Discussion:</b></p>
+<p>
+The synopsis in 31.11.2.1 <a href="https://wg21.link/syncstream.syncbuf.overview">[syncstream.syncbuf.overview]</a> shows the move assignment operator and
+<tt>swap</tt> member as potentially throwing. The detailed descriptions in
+31.11.2.3 <a href="https://wg21.link/syncstream.syncbuf.assign">[syncstream.syncbuf.assign]</a> are <tt>noexcept</tt>.
+<p/>
+Daniel:
+<p/>
+This mismatch is already present in the originally accepted paper
+<a href="https://wg21.link/p0053r7">P0053R7</a>, so this is nothing that could be resolved editorially.
+</p>
+
+<p><i>[2020-11-21; Reflector prioritization]</i></p>
+
+<p>
+Set priority to 3 during reflector discussions.
+</p>
+
+<p><i>[2021-05-22 Tim adds PR]</i></p>
+
+<p>The move assignment is specified to call <tt>emit()</tt> which can throw,
+and there's nothing in the wording providing for catching/ignoring the exception,
+so it can't be <tt>noexcept</tt>. The <tt>swap</tt> needs
+to call <tt>basic_streambuf::swap</tt>, which isn't <tt>noexcept</tt>,
+so it shouldn't be <tt>noexcept</tt> either.</p>
+
+<p><i>[2021-06-23; Reflector poll]</i></p>
+
+<p>
+Set status to Tentatively Ready after eight votes in favour during reflector poll.
+</p>
+
+<p><i>[2021-10-14 Approved at October 2021 virtual plenary. Status changed: Voting &rarr; WP.]</i></p>
+
+
+
+<p id="res-3498"><b>Proposed resolution:</b></p>
+<p>
+This wording is relative to <a href="https://wg21.link/n4885">N4885</a>.
+</p>
+
+<ol>
+<li><p>Modify 31.11.2.3 <a href="https://wg21.link/syncstream.syncbuf.assign">[syncstream.syncbuf.assign]</a> as indicated:</p>
+
+<blockquote>
+<pre>
+basic_syncbuf&amp; operator=(basic_syncbuf&amp;&amp; rhs) <del>noexcept</del>;
+</pre>
+<blockquote>
+<p>
+-1- <i>Effects</i>: [&hellip;]
+<p/>
+-2- <i>Postconditions</i>: [&hellip;]
+<p/>
+-3- <i>Returns</i>: [&hellip;]
+<p/>
+-4- <i>Remarks</i>: [&hellip;]
+</p>
+</blockquote>
+<pre>
+void swap(basic_syncbuf&amp; other) <del>noexcept</del>;
+</pre>
+<blockquote>
+<p>
+-5- <i>Preconditions</i>: [&hellip;]
+<p/>
+-6- <i>Effects</i>: [&hellip;]
+</p>
+</blockquote>
+</blockquote>
+</li>
+</ol>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>Issue 3737: take_view::sentinel should provide operator-</title>
+<style type="text/css">
+  p {text-align:justify}
+  li {text-align:justify}
+  blockquote.note
+  {
+    background-color:#E0E0E0;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  ins {background-color:#A0FFA0}
+  del {background-color:#FFA0A0}
+  table {border-collapse: collapse;}
+  @media (prefers-color-scheme: dark) {
+     html {
+        color: #ddd;
+        background-color: black;
+     }
+     ins {
+        background-color: #225522
+     }
+     del {
+        background-color: #662222
+     }
+     a {
+        color: #6af
+     }
+     a:visited {
+        color: #6af
+     }
+     blockquote.note
+     {
+        background-color: rgba(255, 255, 255, .10)
+     }
+  }
+</style>
+</head>
+<body>
+<hr>
+<p><em>This page is a snapshot from the LWG issues list, see the <a href="lwg-active.html">Library Active Issues List</a> for more information and the meaning of <a href="lwg-active.html#WP">WP</a> status.</em></p>
+<h3><a name="3737" href="lwg-defects.html#3737">3737</a>. <tt>take_view::<i>sentinel</i></tt> should provide <tt>operator-</tt></h3>
+<p><b>Section:</b> 26.7.10.3 <a href="https://wg21.link/range.take.sentinel">[range.take.sentinel]</a> <b>Status:</b> <a href="lwg-active.html#WP">WP</a>
+ <b>Submitter:</b> Hewill Kang <b>Opened:</b> 2022-07-15 <b>Last modified:</b> 2022-11-17</p>
+<p><b>Priority: </b>3
+</p>
+<p><b>View all other</b> <a href="lwg-index.html#range.take.sentinel">issues</a> in [range.take.sentinel].</p>
+<p><b>View all issues with</b> <a href="lwg-status.html#WP">WP</a> status.</p>
+<p><b>Discussion:</b></p>
+
+<p>
+This issue is part of NB comment <b><a href="https://github.com/cplusplus/nbballot/issues/524">US 47-109</a></b>
+26 [ranges] Resolve open issues
+</p>
+
+<p>
+When the underlying range is not a <tt>sized_range</tt>, the <tt>begin</tt> and <tt>end</tt> functions 
+of <tt>take_view</tt> return <tt>counted_iterator</tt> and <tt>take_view::<i>sentinel</i></tt> respectively. 
+However, the sentinel type of the underlying range may still model <tt>sized_sentinel_for</tt> for its 
+iterator type, and since <tt>take_view::<i>sentinel</i></tt> can only be compared to <tt>counted_iterator</tt>, 
+this makes <tt>take_view</tt> no longer able to compute the distance between its iterator and sentinel.
+<p/>
+We are needlessly losing functionality here. Since calculating the distance, in this case, is still simple, 
+i.e. we just need to compute the minimum of <tt>counted_iterator::count</tt> and the difference between 
+the underlying iterator and sentinel, I think providing <tt>operator-</tt> for 
+<tt>take_view::<i>sentinel</i></tt> does bring some value.
+</p>
+
+<p><i>[2022-08-23; Reflector poll]</i></p>
+
+<p>
+Set priority to 3 after reflector poll.
+</p>
+<p>
+Some P0 votes, but with objections:
+"This seems like a) a feature not a bug - of fairly limited utility?,
+and b) I’d like to see an implementation (maybe it’s in MSVC?)
+to be sure there isn’t a negative interaction we’re not thinking of."
+</p>
+
+<p><strong>Previous resolution [SUPERSEDED]:</strong></p>
+<blockquote class="note">
+
+<p>
+This wording is relative to <a href="https://wg21.link/N4910">N4910</a>.
+</p>
+
+<ol>
+
+<li><p>Modify 26.7.10.3 <a href="https://wg21.link/range.take.sentinel">[range.take.sentinel]</a>, class template <tt>take_view::<i>sentinel</i></tt> synopsis, 
+as indicated:</p>
+
+<blockquote>
+<blockquote>
+<pre>
+namespace std::ranges {
+  template&lt;view V&gt;
+  template&lt;bool Const&gt;
+  class take_view&lt;V&gt;::<i>sentinel</i> {
+  private:
+    using <i>Base</i> = <i>maybe-const</i>&lt;Const, V&gt;;                                     <i>// exposition only</i>
+    template&lt;bool OtherConst&gt;
+      using <i>CI</i> = counted_iterator&lt;iterator_t&lt;<i>maybe-const</i>&lt;OtherConst, V&gt;&gt;&gt;;  <i>// exposition only</i>
+    sentinel_t&lt;<i>Base</i>&gt; <i>end_</i> = sentinel_t&lt;<i>Base</i>&gt;();                             <i>// exposition only</i>
+  public:
+    [&hellip;]
+    friend constexpr bool operator==(const <i>CI</i>&lt;Const&gt;&amp; y, const <i>sentinel</i>&amp; x);
+
+    template&lt;bool OtherConst = !Const&gt;
+      requires sentinel_for&lt;sentinel_t&lt;<i>Base</i>&gt;, iterator_t&lt;<i>maybe-const</i>&lt;OtherConst, V&gt;&gt;&gt;
+    friend constexpr bool operator==(const <i>CI</i>&lt;OtherConst&gt;&amp; y, const <i>sentinel</i>&amp; x);
+    <ins>
+    friend constexpr range_difference_t&lt;<i>Base</i>&gt;
+      operator-(const <i>sentinel</i>&amp; x, const <i>CI</i>&lt;Const&gt;&amp; y)
+        requires sized_sentinel_for&lt;sentinel_t&lt;<i>Base</i>&gt;, iterator_t&lt;<i>Base</i>&gt;&gt;;
+
+    template&lt;bool OtherConst = !Const&gt;
+      requires sized_sentinel_for&lt;sentinel_t&lt;<i>Base</i>&gt;, iterator_t&lt;<i>maybe-const</i>&lt;OtherConst, V&gt;&gt;&gt;
+    friend constexpr range_difference_t&lt;<i>maybe-const</i>&lt;OtherConst, V&gt;&gt;
+      operator-(const <i>sentinel</i>&amp; x, const <i>CI</i>&lt;OtherConst&gt;&amp; y);
+
+    friend constexpr range_difference_t&lt;<i>Base</i>&gt;
+      operator-(const <i>CI</i>&lt;Const&gt;&amp; x, const <i>sentinel</i>&amp; y)
+        requires sized_sentinel_for&lt;sentinel_t&lt;<i>Base</i>&gt;, iterator_t&lt;<i>Base</i>&gt;&gt;;
+
+    template&lt;bool OtherConst = !Const&gt;
+      requires sized_sentinel_for&lt;sentinel_t&lt;<i>Base</i>&gt;, iterator_t&lt;<i>maybe-const</i>&lt;OtherConst, V&gt;&gt;&gt;
+    friend constexpr range_difference_t&lt;<i>maybe-const</i>&lt;OtherConst, V&gt;&gt;
+      operator-(const <i>CI</i>&lt;OtherConst&gt;&amp; x, const <i>sentinel</i>&amp; y);</ins>
+  };
+}
+</pre>
+</blockquote>
+[&hellip;]
+<pre>
+friend constexpr bool operator==(const <i>CI</i>&lt;Const&gt;&amp; y, const <i>sentinel</i>&amp; x);
+
+template&lt;bool OtherConst = !Const&gt;
+  requires sentinel_for&lt;sentinel_t&lt;<i>Base</i>&gt;, iterator_t&lt;<i>maybe-const</i>&lt;OtherConst, V&gt;&gt;&gt;
+friend constexpr bool operator==(const <i>CI</i>&lt;OtherConst&gt;&amp; y, const <i>sentinel</i>&amp; x);
+</pre>
+<blockquote>
+<p>
+-4- <i>Effects:</i> Equivalent to: <tt>return y.count() == 0 || y.base() == x.<i>end_</i>;</tt>
+</p>
+</blockquote>
+<pre>
+<ins>
+friend constexpr range_difference_t&lt;<i>Base</i>&gt; 
+  operator-(const <i>sentinel</i>&amp; x, const <i>CI</i>&lt;Const&gt;&amp; y)
+    requires sized_sentinel_for&lt;sentinel_t&lt;<i>Base</i>&gt;, iterator_t&lt;<i>Base</i>&gt;&gt;; 
+
+template&lt;bool OtherConst = !Const&gt;
+  requires sized_sentinel_for&lt;sentinel_t&lt;<i>Base</i>&gt;, iterator_t&lt;<i>maybe-const</i>&lt;OtherConst, V&gt;&gt;&gt;
+friend constexpr range_difference_t&lt;<i>maybe-const</i>&lt;OtherConst, V&gt;&gt;
+  operator-(const <i>sentinel</i>&amp; x, const <i>CI</i>&lt;OtherConst&gt;&amp; y);</ins>
+</pre>
+<blockquote>
+<p>
+<ins>-?- <i>Effects:</i> Equivalent to: <tt>return ranges::min(y.count(), x.<i>end_</i> - y.base());</tt></ins>
+</p>
+</blockquote>
+<pre>
+<ins>
+friend constexpr range_difference_t&lt;<i>Base</i>&gt;
+  operator-(const <i>CI</i>&lt;Const&gt;&amp; x, const <i>sentinel</i>&amp; y)
+    requires sized_sentinel_for&lt;sentinel_t&lt;<i>Base</i>&gt;, iterator_t&lt;<i>Base</i>&gt;&gt;;
+
+template&lt;bool OtherConst = !Const&gt;
+  requires sized_sentinel_for&lt;sentinel_t&lt;<i>Base</i>&gt;, iterator_t&lt;<i>maybe-const</i>&lt;OtherConst, V&gt;&gt;&gt;
+friend constexpr range_difference_t&lt;<i>maybe-const</i>&lt;OtherConst, V&gt;&gt;
+  operator-(const <i>CI</i>&lt;OtherConst&gt;&amp; x, const <i>sentinel</i>&amp; y);
+</ins>
+</pre>
+<blockquote>
+<p>
+<ins>-?- <i>Effects:</i> Equivalent to: <tt>return -(y - x);</tt></ins>
+</p>
+</blockquote>
+</blockquote>
+</li>
+</ol>
+</blockquote>
+<p><i>[Kona 2022-11-08; Discussed at joint LWG/SG9 session. Move to Open]</i></p>
+
+<p><i>[2022-11-09 Tim updates wording following LWG discussion]</i></p>
+
+<p>
+This case is only possible if the source view is not a <tt>sized_range</tt>, yet its 
+iterator/sentinel types model <tt>sized_sentinel_for</tt> (typically when source
+is an input range). In such a case we should just have <tt>begin</tt> compute
+the correct size so that <tt>end</tt> can just return <tt>default_sentinel</tt>.
+</p>
+
+<p><i>[Kona 2022-11-10; Move to Immediate]</i></p>
+
+<p><i>[2022-11-12 Approved at November 2022 meeting in Kona. Status changed: Immediate &rarr; WP.]</i></p>
+
+
+
+<p id="res-3737"><b>Proposed resolution:</b></p>
+<p>
+This wording is relative to <a href="https://wg21.link/N4917">N4917</a>.
+</p>
+<ol>
+<li><p>Modify 26.7.10.2 <a href="https://wg21.link/range.take.view">[range.take.view]</a>, class template <tt>take_view</tt> synopsis, as indicated:</p>
+
+<blockquote>
+<pre>
+namespace std::ranges {
+  template&lt;view V&gt;
+  class take_view : public view_interface&lt;take_view&lt;V&gt;&gt; {
+  private:
+    [&hellip;]
+  public:
+    [&hellip;]
+    constexpr auto begin() requires (!<i>simple-view</i>&lt;V&gt;) {
+      if constexpr (sized_range&lt;V&gt;) {
+        if constexpr (random_access_range&lt;V&gt;) {
+          return ranges::begin(<i>base_</i>);
+        } else {
+          auto sz = range_difference_t&lt;V&gt;(size());
+          return counted_iterator(ranges::begin(<i>base_</i>), sz);
+        }
+      }<ins> else if constexpr (sized_sentinel_for&lt;sentinel_t&lt;V&gt;, iterator_t&lt;V&gt;&gt;) {
+        auto it = ranges::begin(<i>base_</i>);
+        auto sz = std::min(<i>count_</i>, ranges::end(<i>base_</i>) - it);
+        return counted_iterator(std::move(it), sz);
+      }</ins> else {
+        return counted_iterator(ranges::begin(<i>base_</i>), <i>count_</i>);
+      }
+    }
+
+    constexpr auto begin() const requires range&lt;const V&gt; {
+      if constexpr (sized_range&lt;const V&gt;) {
+        if constexpr (random_access_range&lt;const V&gt;) {
+          return ranges::begin(<i>base_</i>);
+        } else {
+          auto sz = range_difference_t&lt;const V&gt;(size());
+          return counted_iterator(ranges::begin(<i>base_</i>), sz);
+        }
+      }<ins> else if constexpr (sized_sentinel_for&lt;sentinel_t&lt;const V&gt;, iterator_t&lt;const V&gt;&gt;) {
+        auto it = ranges::begin(<i>base_</i>);
+        auto sz = std::min(<i>count_</i>, ranges::end(<i>base_</i>) - it);
+        return counted_iterator(std::move(it), sz);
+      }</ins> else {
+        return counted_iterator(ranges::begin(<i>base_</i>), <i>count_</i>);
+      }
+    }
+
+    constexpr auto end() requires (!<i>simple-view</i>&lt;V&gt;) {
+      if constexpr (sized_range&lt;V&gt;) {
+        if constexpr (random_access_range&lt;V&gt;)
+          return ranges::begin(<i>base_</i>) + range_difference_t&lt;V&gt;(size());
+        else
+          return default_sentinel;
+      }<ins> else if constexpr (sized_sentinel_for&lt;sentinel_t&lt;V&gt;, iterator_t&lt;V&gt;&gt;) {
+        return default_sentinel;
+      }</ins> else {
+        return sentinel&lt;false&gt;{ranges::end(<i>base_</i>)};
+      }
+    }
+
+    constexpr auto end() const requires range&lt;const V&gt; {
+      if constexpr (sized_range&lt;const V&gt;) {
+        if constexpr (random_access_range&lt;const V&gt;)
+          return ranges::begin(<i>base_</i>) + range_difference_t&lt;const V&gt;(size());
+        else
+          return default_sentinel;
+      }<ins> else if constexpr (sized_sentinel_for&lt;sentinel_t&lt;const V&gt;, iterator_t&lt;const V&gt;&gt;) {
+        return default_sentinel;
+      }</ins> else {
+        return sentinel&lt;true&gt;{ranges::end(<i>base_</i>)};
+      }
+    }
+    
+    [&hellip;]
+  };
+  [&hellip;]
+}
+</pre>
+</blockquote>
+</li>
+</ol>
+
+
+
+
+
+</body>
+</html>
