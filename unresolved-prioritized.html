@@ -60,7 +60,7 @@
 <p>This document is the Table of Contents for the <a href="lwg-active.html">Library Active Issues List</a>,
 <a href="lwg-defects.html">Library Defect Reports and Accepted Issues</a>, and <a href="lwg-closed.html">Library Closed Issues List</a>,
 sorted by priority.</p>
-<p>Revised 2024-11-10 at 17:15:22 UTC
+<p>Revised 2024-12-03 at 18:36:28 UTC
 </p><h2 id="Priority_1">Priority 1 (2 issues)</h2>
 <table class="issues-index">
 <tr>
@@ -537,7 +537,7 @@ specified to make <code><i>N</i></code> copies of <code>T</code> into the destin
 <td></td>
 </tr>
 </table>
-<h2 id="Priority_3">Priority 3 (378 issues)</h2>
+<h2 id="Priority_3">Priority 3 (377 issues)</h2>
 <table class="issues-index">
 <tr>
   <th><a href="lwg-toc.html">Issue</a></th>
@@ -1003,8 +1003,8 @@ and user requirements</td>
 <td></td>
 </tr>
 <tr>
-<td id="4130"><a href="lwg-active.html#4130" title="Preconditions for std::launder might be overly strict (Status: New)">4130</a><sup><a href="https://cplusplus.github.io/LWG/issue4130">(i)</a></sup></td>
-<td><a href="lwg-active.html#New">New</a></td>
+<td id="4130"><a href="lwg-active.html#4130" title="Preconditions for std::launder might be overly strict (Status: Open)">4130</a><sup><a href="https://cplusplus.github.io/LWG/issue4130">(i)</a></sup></td>
+<td><a href="lwg-active.html#Open">Open</a></td>
 <td>17.6.5 [ptr.launder]</td>
 <td>Preconditions for <code>std::launder</code> might be overly strict</td>
 <td>Yes</td>
@@ -2840,15 +2840,6 @@ inner-iterator with std::default_sentinel results in null pointer dereference (S
 <td></td>
 </tr>
 <tr>
-<td id="3064"><a href="lwg-active.html#3064" title="How do uninitialized memory algorithms obtain pointer without undefined behavior? (Status: New)">3064</a><sup><a href="https://cplusplus.github.io/LWG/issue3064">(i)</a></sup></td>
-<td><a href="lwg-active.html#New">New</a></td>
-<td>26.11 [specialized.algorithms]</td>
-<td>How do uninitialized memory algorithms obtain pointer without undefined behavior?</td>
-<td><span class="no-pr">No</span></td>
-<td>3</td>
-<td></td>
-</tr>
-<tr>
 <td id="3628"><a href="lwg-active.html#3628" title="&quot;Effects: Equivalent to:&quot; and uninitialized memory algorithms (Status: New)">3628</a><sup><a href="https://cplusplus.github.io/LWG/issue3628">(i)</a></sup></td>
 <td><a href="lwg-active.html#New">New</a></td>
 <td>26.11 [specialized.algorithms]</td>
@@ -3455,7 +3446,7 @@ required to be correctly formatted?</td>
 <td><a href="lwg-active.html#New">New</a></td>
 <td>30.13 [time.parse]</td>
 <td><code>chrono::parse</code> uses <code>from_stream</code> as a customization point</td>
-<td><span class="no-pr">No</span></td>
+<td>Yes</td>
 <td>3</td>
 <td></td>
 </tr>
@@ -4666,7 +4657,7 @@ should require the arguments to have the same length</td>
 <td></td>
 </tr>
 </table>
-<h2 id="Priority_99">Not Prioritized (60 issues)</h2>
+<h2 id="Priority_99">Not Prioritized (64 issues)</h2>
 <table class="issues-index">
 <tr>
   <th><a href="lwg-toc.html">Issue</a></th>
@@ -4732,8 +4723,8 @@ should require the arguments to have the same length</td>
 <td></td>
 </tr>
 <tr>
-<td id="3454"><a href="lwg-active.html#3454" title="pointer_traits::pointer_to should be constexpr (Status: LEWG)">3454</a><sup><a href="https://cplusplus.github.io/LWG/issue3454">(i)</a></sup></td>
-<td><a href="lwg-active.html#LEWG">LEWG</a></td>
+<td id="3454"><a href="lwg-active.html#3454" title="pointer_traits::pointer_to should be constexpr (Status: Open)">3454</a><sup><a href="https://cplusplus.github.io/LWG/issue3454">(i)</a></sup></td>
+<td><a href="lwg-active.html#Open">Open</a></td>
 <td>20.2.3 [pointer.traits]</td>
 <td><code>pointer_traits::pointer_to</code> should be <code>constexpr</code></td>
 <td>Yes</td>
@@ -4754,15 +4745,6 @@ should require the arguments to have the same length</td>
 <td><a href="lwg-active.html#New">New</a></td>
 <td>20.2.6 [obj.lifetime]</td>
 <td><code class='backtick'>std::start_lifetime_as</code> inadvertently has undefined behavior due to use of <code class='backtick'>std::bit_cast</code></td>
-<td>Yes</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td id="4144"><a href="lwg-active.html#4144" title="Disallow unique_ptr&lt;T&amp;, D&gt; (Status: New)">4144</a><sup><a href="https://cplusplus.github.io/LWG/issue4144">(i)</a></sup></td>
-<td><a href="lwg-active.html#New">New</a></td>
-<td>20.3.1.3.1 [unique.ptr.single.general]</td>
-<td>Disallow <code>unique_ptr&lt;T&amp;, D&gt;</code></td>
 <td>Yes</td>
 <td></td>
 <td></td>
@@ -4831,8 +4813,8 @@ should require the arguments to have the same length</td>
 <td><a href="lwg-closed.html#348" title="Minor issue with std::pair operator&lt; (Status: Dup)">348</a></td>
 </tr>
 <tr>
-<td id="2991"><a href="lwg-active.html#2991" title="variant copy constructor missing noexcept(see below) (Status: LEWG)">2991</a><sup><a href="https://cplusplus.github.io/LWG/issue2991">(i)</a></sup></td>
-<td><a href="lwg-active.html#LEWG">LEWG</a></td>
+<td id="2991"><a href="lwg-active.html#2991" title="variant copy constructor missing noexcept(see below) (Status: Open)">2991</a><sup><a href="https://cplusplus.github.io/LWG/issue2991">(i)</a></sup></td>
+<td><a href="lwg-active.html#Open">Open</a></td>
 <td>22.6.3.2 [variant.ctor]</td>
 <td><code>variant</code> copy constructor missing <code>noexcept(<i>see below</i>)</code></td>
 <td>Yes</td>
@@ -4855,6 +4837,24 @@ types &mdash; this is inconsistent with other types in the library (Status: LEWG
 <td>23 [containers]</td>
 <td>The relational operators of <code>optional</code> and <code>variant</code> completely reflect the semantics of the element 
 types &mdash; this is inconsistent with other types in the library</td>
+<td><span class="no-pr">No</span></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td id="4173"><a href="lwg-active.html#4173" title="Better term for &quot;references, pointers and iterators to elements&quot; (Status: New)">4173</a><sup><a href="https://cplusplus.github.io/LWG/issue4173">(i)</a></sup></td>
+<td><a href="lwg-active.html#New">New</a></td>
+<td>23 [containers]</td>
+<td>Better term for "references, pointers and iterators to elements"</td>
+<td><span class="no-pr">No</span></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td id="4176"><a href="lwg-active.html#4176" title="Refer back to container requirements when extending them (Status: New)">4176</a><sup><a href="https://cplusplus.github.io/LWG/issue4176">(i)</a></sup></td>
+<td><a href="lwg-active.html#New">New</a></td>
+<td>23 [containers]</td>
+<td>Refer back to container requirements when extending them</td>
 <td><span class="no-pr">No</span></td>
 <td></td>
 <td></td>
@@ -4896,11 +4896,11 @@ types &mdash; this is inconsistent with other types in the library</td>
 <td></td>
 </tr>
 <tr>
-<td id="4170"><a href="lwg-active.html#4170" title="contiguous_iterator should require to_address(I{}) (Status: New)">4170</a><sup><a href="https://cplusplus.github.io/LWG/issue4170">(i)</a></sup></td>
+<td id="4178"><a href="lwg-active.html#4178" title="writable is no longer a term of power (Status: New)">4178</a><sup><a href="https://cplusplus.github.io/LWG/issue4178">(i)</a></sup></td>
 <td><a href="lwg-active.html#New">New</a></td>
-<td>24.3.4.14 [iterator.concept.contiguous]</td>
-<td><code class='backtick'>contiguous_iterator</code> should require <code class='backtick'>to_address(I{})</code></td>
-<td>Yes</td>
+<td>24.3.1 [iterator.requirements.general]</td>
+<td><i>writable</i> is no longer a term of power</td>
+<td><span class="no-pr">No</span></td>
 <td></td>
 <td></td>
 </tr>
@@ -5147,11 +5147,20 @@ vprint_unicode/vprint_nonunicode (Status: New)">4039</a><sup><a href="https://cp
 <td><a href="lwg-closed.html#1458" title="Overlapping evaluations are allowed (Status: Dup)">1458</a></td>
 </tr>
 <tr>
-<td id="4169"><a href="lwg-active.html#4169" title="std::atomic&lt;T&gt;'s default constructor should be constrained (Status: New)">4169</a><sup><a href="https://cplusplus.github.io/LWG/issue4169">(i)</a></sup></td>
+<td id="4174"><a href="lwg-active.html#4174" title="How does [atomics.order] p3 apply when then modification is an initialization? (Status: New)">4174</a><sup><a href="https://cplusplus.github.io/LWG/issue4174">(i)</a></sup></td>
 <td><a href="lwg-active.html#New">New</a></td>
-<td>32.5.8.2 [atomics.types.operations]</td>
-<td><code>std::atomic&lt;T&gt;</code>'s default constructor should be constrained</td>
-<td>Yes</td>
+<td>32.5.4 [atomics.order]</td>
+<td>How does [atomics.order] p3 apply when then modification is an initialization?</td>
+<td><span class="no-pr">No</span></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td id="4177"><a href="lwg-active.html#4177" title="&sect;[atomics.order] p8 &quot;circularly depend on their own computation&quot; is unclear for loop (Status: New)">4177</a><sup><a href="https://cplusplus.github.io/LWG/issue4177">(i)</a></sup></td>
+<td><a href="lwg-active.html#New">New</a></td>
+<td>32.5.4 [atomics.order]</td>
+<td>&sect;[atomics.order] p8 "circularly depend on their own computation" is unclear for loop</td>
+<td><span class="no-pr">No</span></td>
 <td></td>
 <td></td>
 </tr>
@@ -5192,10 +5201,28 @@ vprint_unicode/vprint_nonunicode (Status: New)">4039</a><sup><a href="https://cp
 <td></td>
 </tr>
 <tr>
+<td id="4172"><a href="lwg-active.html#4172" title="unique_lock self-move-assignment is broken (Status: New)">4172</a><sup><a href="https://cplusplus.github.io/LWG/issue4172">(i)</a></sup></td>
+<td><a href="lwg-active.html#New">New</a></td>
+<td>32.6.5.4.2 [thread.lock.unique.cons]</td>
+<td>unique_lock self-move-assignment is broken</td>
+<td>Yes</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
 <td id="4160"><a href="lwg-active.html#4160" title="packaged_task should reject rvalue reference return types (Status: New)">4160</a><sup><a href="https://cplusplus.github.io/LWG/issue4160">(i)</a></sup></td>
 <td><a href="lwg-active.html#New">New</a></td>
 <td>32.10.10.1 [futures.task.general]</td>
 <td><code>packaged_task</code> should reject rvalue reference return types</td>
+<td>Yes</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td id="4175"><a href="lwg-active.html#4175" title="get_env() specified in terms of as_const() but this doesn't work with rvalue senders (Status: New)">4175</a><sup><a href="https://cplusplus.github.io/LWG/issue4175">(i)</a></sup></td>
+<td><a href="lwg-active.html#New">New</a></td>
+<td>33.5.2 [exec.get.allocator]</td>
+<td><code class='backtick'>get_env()</code> specified in terms of <code class='backtick'>as_const()</code> but this doesn't work with rvalue senders</td>
 <td>Yes</td>
 <td></td>
 <td></td>

@@ -62,8 +62,8 @@ This document is the Index by Status and Section for the <a href="lwg-active.htm
 <a href="lwg-defects.html">Library Defect Reports and Accepted Issues</a>, and <a href="lwg-closed.html">Library Closed Issues List</a>.
 </p>
 
-<p>Revised 2024-11-10 at 17:15:22 UTC
-</p><h2 id="New">New (441 issues)</h2>
+<p>Revised 2024-12-03 at 18:36:28 UTC
+</p><h2 id="New">New (443 issues)</h2>
 <table class="issues-index">
 <tr>
   <th><a href="lwg-toc.html">Issue</a></th>
@@ -547,15 +547,6 @@ and user requirements</td>
 <td></td>
 </tr>
 <tr>
-<td id="4130"><a href="lwg-active.html#4130" title="Preconditions for std::launder might be overly strict (Status: New)">4130</a><sup><a href="https://cplusplus.github.io/LWG/issue4130">(i)</a></sup></td>
-<td><a href="lwg-active.html#New">New</a></td>
-<td>17.6.5 [ptr.launder]</td>
-<td>Preconditions for <code>std::launder</code> might be overly strict</td>
-<td>Yes</td>
-<td>3</td>
-<td></td>
-</tr>
-<tr>
 <td id="3624"><a href="lwg-active.html#3624" title="Inconsistency of &lt;typeinfo&gt;, &lt;initializer_list&gt;, and 
 &lt;compare&gt; in the standard library (Status: New)">3624</a><sup><a href="https://cplusplus.github.io/LWG/issue3624">(i)</a></sup></td>
 <td><a href="lwg-active.html#New">New</a></td>
@@ -861,15 +852,6 @@ and user requirements</td>
 <td>&sect;[unique.ptr.single] requirements on deleter may be too strict</td>
 <td><span class="no-pr">No</span></td>
 <td>3</td>
-<td></td>
-</tr>
-<tr>
-<td id="4144"><a href="lwg-active.html#4144" title="Disallow unique_ptr&lt;T&amp;, D&gt; (Status: New)">4144</a><sup><a href="https://cplusplus.github.io/LWG/issue4144">(i)</a></sup></td>
-<td><a href="lwg-active.html#New">New</a></td>
-<td>20.3.1.3.1 [unique.ptr.single.general]</td>
-<td>Disallow <code>unique_ptr&lt;T&amp;, D&gt;</code></td>
-<td>Yes</td>
-<td></td>
 <td></td>
 </tr>
 <tr>
@@ -1421,6 +1403,24 @@ the evaluation of type traits</td>
 <td></td>
 </tr>
 <tr>
+<td id="4176"><a href="lwg-active.html#4176" title="Refer back to container requirements when extending them (Status: New)">4176</a><sup><a href="https://cplusplus.github.io/LWG/issue4176">(i)</a></sup></td>
+<td><a href="lwg-active.html#New">New</a></td>
+<td>23 [containers]</td>
+<td>Refer back to container requirements when extending them</td>
+<td><span class="no-pr">No</span></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td id="4173"><a href="lwg-active.html#4173" title="Better term for &quot;references, pointers and iterators to elements&quot; (Status: New)">4173</a><sup><a href="https://cplusplus.github.io/LWG/issue4173">(i)</a></sup></td>
+<td><a href="lwg-active.html#New">New</a></td>
+<td>23 [containers]</td>
+<td>Better term for "references, pointers and iterators to elements"</td>
+<td><span class="no-pr">No</span></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
 <td id="3059"><a href="lwg-active.html#3059" title="Wrong requirements for map-like associative container assignment? (Status: New)">3059</a><sup><a href="https://cplusplus.github.io/LWG/issue3059">(i)</a></sup></td>
 <td><a href="lwg-active.html#New">New</a></td>
 <td>23.2 [container.requirements]</td>
@@ -1749,6 +1749,15 @@ should conditionally require <i>Cpp17CopyInsertable</i> in their preconditions</
 <td></td>
 </tr>
 <tr>
+<td id="4178"><a href="lwg-active.html#4178" title="writable is no longer a term of power (Status: New)">4178</a><sup><a href="https://cplusplus.github.io/LWG/issue4178">(i)</a></sup></td>
+<td><a href="lwg-active.html#New">New</a></td>
+<td>24.3.1 [iterator.requirements.general]</td>
+<td><i>writable</i> is no longer a term of power</td>
+<td><span class="no-pr">No</span></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
 <td id="4080"><a href="lwg-active.html#4080" title="Presumed value and difference types of an iterator type in ranges and non-ranges algorithms (Status: New)">4080</a><sup><a href="https://cplusplus.github.io/LWG/issue4080">(i)</a></sup></td>
 <td><a href="lwg-active.html#New">New</a></td>
 <td>24.3.2 [iterator.assoc.types]</td>
@@ -1800,15 +1809,6 @@ should conditionally require <i>Cpp17CopyInsertable</i> in their preconditions</
 <td>&sect;[iterator.concept.forward][forward.iterators] Two different definitions of multi-pass guarantee</td>
 <td><span class="no-pr">No</span></td>
 <td>3</td>
-<td></td>
-</tr>
-<tr>
-<td id="4170"><a href="lwg-active.html#4170" title="contiguous_iterator should require to_address(I{}) (Status: New)">4170</a><sup><a href="https://cplusplus.github.io/LWG/issue4170">(i)</a></sup></td>
-<td><a href="lwg-active.html#New">New</a></td>
-<td>24.3.4.14 [iterator.concept.contiguous]</td>
-<td><code class='backtick'>contiguous_iterator</code> should require <code class='backtick'>to_address(I{})</code></td>
-<td>Yes</td>
-<td></td>
 <td></td>
 </tr>
 <tr>
@@ -2660,15 +2660,6 @@ specified to make <code><i>N</i></code> copies of <code>T</code> into the destin
 <td></td>
 </tr>
 <tr>
-<td id="3064"><a href="lwg-active.html#3064" title="How do uninitialized memory algorithms obtain pointer without undefined behavior? (Status: New)">3064</a><sup><a href="https://cplusplus.github.io/LWG/issue3064">(i)</a></sup></td>
-<td><a href="lwg-active.html#New">New</a></td>
-<td>26.11 [specialized.algorithms]</td>
-<td>How do uninitialized memory algorithms obtain pointer without undefined behavior?</td>
-<td><span class="no-pr">No</span></td>
-<td>3</td>
-<td></td>
-</tr>
-<tr>
 <td id="3647"><a href="lwg-active.html#3647" title="nothrow-input-iterator constraints should not mention copying (Status: New)">3647</a><sup><a href="https://cplusplus.github.io/LWG/issue3647">(i)</a></sup></td>
 <td><a href="lwg-active.html#New">New</a></td>
 <td>26.11.2 [special.mem.concepts]</td>
@@ -3480,6 +3471,15 @@ required to be correctly formatted?</td>
 <td></td>
 </tr>
 <tr>
+<td id="3956"><a href="lwg-active.html#3956" title="chrono::parse uses from_stream as a customization point (Status: New)">3956</a><sup><a href="https://cplusplus.github.io/LWG/issue3956">(i)</a></sup></td>
+<td><a href="lwg-active.html#New">New</a></td>
+<td>30.13 [time.parse]</td>
+<td><code>chrono::parse</code> uses <code>from_stream</code> as a customization point</td>
+<td>Yes</td>
+<td>3</td>
+<td></td>
+</tr>
+<tr>
 <td id="3962"><a href="lwg-active.html#3962" title="What is the &quot;decimal precision of the input&quot;? (Status: New)">3962</a><sup><a href="https://cplusplus.github.io/LWG/issue3962">(i)</a></sup></td>
 <td><a href="lwg-active.html#New">New</a></td>
 <td>30.13 [time.parse]</td>
@@ -3503,15 +3503,6 @@ required to be correctly formatted?</td>
 <td>30.13 [time.parse]</td>
 <td>Does <code>chrono::parse</code> check format strings?</td>
 <td>Yes</td>
-<td>3</td>
-<td></td>
-</tr>
-<tr>
-<td id="3956"><a href="lwg-active.html#3956" title="chrono::parse uses from_stream as a customization point (Status: New)">3956</a><sup><a href="https://cplusplus.github.io/LWG/issue3956">(i)</a></sup></td>
-<td><a href="lwg-active.html#New">New</a></td>
-<td>30.13 [time.parse]</td>
-<td><code>chrono::parse</code> uses <code>from_stream</code> as a customization point</td>
-<td><span class="no-pr">No</span></td>
 <td>3</td>
 <td></td>
 </tr>
@@ -3815,6 +3806,24 @@ vprint_unicode/vprint_nonunicode (Status: New)">4039</a><sup><a href="https://cp
 <td></td>
 </tr>
 <tr>
+<td id="4177"><a href="lwg-active.html#4177" title="&sect;[atomics.order] p8 &quot;circularly depend on their own computation&quot; is unclear for loop (Status: New)">4177</a><sup><a href="https://cplusplus.github.io/LWG/issue4177">(i)</a></sup></td>
+<td><a href="lwg-active.html#New">New</a></td>
+<td>32.5.4 [atomics.order]</td>
+<td>&sect;[atomics.order] p8 "circularly depend on their own computation" is unclear for loop</td>
+<td><span class="no-pr">No</span></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td id="4174"><a href="lwg-active.html#4174" title="How does [atomics.order] p3 apply when then modification is an initialization? (Status: New)">4174</a><sup><a href="https://cplusplus.github.io/LWG/issue4174">(i)</a></sup></td>
+<td><a href="lwg-active.html#New">New</a></td>
+<td>32.5.4 [atomics.order]</td>
+<td>How does [atomics.order] p3 apply when then modification is an initialization?</td>
+<td><span class="no-pr">No</span></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
 <td id="3999"><a href="lwg-active.html#3999" title="P0439R0 changed the value category of memory order constants (Status: New)">3999</a><sup><a href="https://cplusplus.github.io/LWG/issue3999">(i)</a></sup></td>
 <td><a href="lwg-active.html#New">New</a></td>
 <td>32.5.4 [atomics.order]</td>
@@ -3860,15 +3869,6 @@ vprint_unicode/vprint_nonunicode (Status: New)">4039</a><sup><a href="https://cp
 <td></td>
 </tr>
 <tr>
-<td id="4169"><a href="lwg-active.html#4169" title="std::atomic&lt;T&gt;'s default constructor should be constrained (Status: New)">4169</a><sup><a href="https://cplusplus.github.io/LWG/issue4169">(i)</a></sup></td>
-<td><a href="lwg-active.html#New">New</a></td>
-<td>32.5.8.2 [atomics.types.operations]</td>
-<td><code>std::atomic&lt;T&gt;</code>'s default constructor should be constrained</td>
-<td>Yes</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
 <td id="3047"><a href="lwg-active.html#3047" title="atomic compound assignment operators can cause undefined behavior when corresponding 
 fetch_meow members don't (Status: New)">3047</a><sup><a href="https://cplusplus.github.io/LWG/issue3047">(i)</a></sup></td>
 <td><a href="lwg-active.html#New">New</a></td>
@@ -3895,6 +3895,15 @@ fetch_meow members don't (Status: New)">3047</a><sup><a href="https://cplusplus.
 <td>Deprecated free functions in <code>&lt;atomic&gt;</code></td>
 <td>Yes</td>
 <td>3</td>
+<td></td>
+</tr>
+<tr>
+<td id="4172"><a href="lwg-active.html#4172" title="unique_lock self-move-assignment is broken (Status: New)">4172</a><sup><a href="https://cplusplus.github.io/LWG/issue4172">(i)</a></sup></td>
+<td><a href="lwg-active.html#New">New</a></td>
+<td>32.6.5.4.2 [thread.lock.unique.cons]</td>
+<td>unique_lock self-move-assignment is broken</td>
+<td>Yes</td>
+<td></td>
 <td></td>
 </tr>
 <tr>
@@ -3940,6 +3949,15 @@ fetch_meow members don't (Status: New)">3047</a><sup><a href="https://cplusplus.
 <td><code>packaged_task::operator=</code> should abandon its shared state</td>
 <td>Yes</td>
 <td>3</td>
+<td></td>
+</tr>
+<tr>
+<td id="4175"><a href="lwg-active.html#4175" title="get_env() specified in terms of as_const() but this doesn't work with rvalue senders (Status: New)">4175</a><sup><a href="https://cplusplus.github.io/LWG/issue4175">(i)</a></sup></td>
+<td><a href="lwg-active.html#New">New</a></td>
+<td>33.5.2 [exec.get.allocator]</td>
+<td><code class='backtick'>get_env()</code> specified in terms of <code class='backtick'>as_const()</code> but this doesn't work with rvalue senders</td>
+<td>Yes</td>
+<td></td>
 <td></td>
 </tr>
 <tr>
@@ -4098,7 +4116,7 @@ don't support <code>DynamicBuffer</code> lvalues</td>
 <td></td>
 </tr>
 </table>
-<h2 id="Open">Open (78 issues)</h2>
+<h2 id="Open">Open (81 issues)</h2>
 <table class="issues-index">
 <tr>
   <th><a href="lwg-toc.html">Issue</a></th>
@@ -4155,6 +4173,15 @@ don't support <code>DynamicBuffer</code> lvalues</td>
 <td></td>
 </tr>
 <tr>
+<td id="4130"><a href="lwg-active.html#4130" title="Preconditions for std::launder might be overly strict (Status: Open)">4130</a><sup><a href="https://cplusplus.github.io/LWG/issue4130">(i)</a></sup></td>
+<td><a href="lwg-active.html#Open">Open</a></td>
+<td>17.6.5 [ptr.launder]</td>
+<td>Preconditions for <code>std::launder</code> might be overly strict</td>
+<td>Yes</td>
+<td>3</td>
+<td></td>
+</tr>
+<tr>
 <td id="2398"><a href="lwg-active.html#2398" title="type_info's destructor shouldn't be required to be virtual (Status: Open)">2398</a><sup><a href="https://cplusplus.github.io/LWG/issue2398">(i)</a></sup></td>
 <td><a href="lwg-active.html#Open">Open</a></td>
 <td>17.7.3 [type.info]</td>
@@ -4179,6 +4206,15 @@ don't support <code>DynamicBuffer</code> lvalues</td>
 <td>P0881R7 ("stacktrace") does not define "actual file name", "actual line number"</td>
 <td><span class="no-pr">No</span></td>
 <td>2</td>
+<td></td>
+</tr>
+<tr>
+<td id="3454"><a href="lwg-active.html#3454" title="pointer_traits::pointer_to should be constexpr (Status: Open)">3454</a><sup><a href="https://cplusplus.github.io/LWG/issue3454">(i)</a></sup></td>
+<td><a href="lwg-active.html#Open">Open</a></td>
+<td>20.2.3 [pointer.traits]</td>
+<td><code>pointer_traits::pointer_to</code> should be <code>constexpr</code></td>
+<td>Yes</td>
+<td></td>
 <td></td>
 </tr>
 <tr>
@@ -4278,6 +4314,15 @@ don't support <code>DynamicBuffer</code> lvalues</td>
 <td>LWG 3973 broke <code>const</code> overloads of <code>std::optional</code> monadic operations</td>
 <td>Yes</td>
 <td>1</td>
+<td></td>
+</tr>
+<tr>
+<td id="2991"><a href="lwg-active.html#2991" title="variant copy constructor missing noexcept(see below) (Status: Open)">2991</a><sup><a href="https://cplusplus.github.io/LWG/issue2991">(i)</a></sup></td>
+<td><a href="lwg-active.html#Open">Open</a></td>
+<td>22.6.3.2 [variant.ctor]</td>
+<td><code>variant</code> copy constructor missing <code>noexcept(<i>see below</i>)</code></td>
+<td>Yes</td>
+<td></td>
 <td></td>
 </tr>
 <tr>
@@ -4812,7 +4857,7 @@ don't support <code>DynamicBuffer</code> lvalues</td>
 <td></td>
 </tr>
 </table>
-<h2 id="LEWG">LEWG (28 issues)</h2>
+<h2 id="LEWG">LEWG (26 issues)</h2>
 <table class="issues-index">
 <tr>
   <th><a href="lwg-toc.html">Issue</a></th>
@@ -4830,15 +4875,6 @@ don't support <code>DynamicBuffer</code> lvalues</td>
 <td>Instances of standard container types are not swappable</td>
 <td>Yes</td>
 <td>3</td>
-<td></td>
-</tr>
-<tr>
-<td id="3454"><a href="lwg-active.html#3454" title="pointer_traits::pointer_to should be constexpr (Status: LEWG)">3454</a><sup><a href="https://cplusplus.github.io/LWG/issue3454">(i)</a></sup></td>
-<td><a href="lwg-active.html#LEWG">LEWG</a></td>
-<td>20.2.3 [pointer.traits]</td>
-<td><code>pointer_traits::pointer_to</code> should be <code>constexpr</code></td>
-<td>Yes</td>
-<td></td>
 <td></td>
 </tr>
 <tr>
@@ -4876,15 +4912,6 @@ don't support <code>DynamicBuffer</code> lvalues</td>
 <td>Yes</td>
 <td></td>
 <td><a href="lwg-closed.html#348" title="Minor issue with std::pair operator&lt; (Status: Dup)">348</a></td>
-</tr>
-<tr>
-<td id="2991"><a href="lwg-active.html#2991" title="variant copy constructor missing noexcept(see below) (Status: LEWG)">2991</a><sup><a href="https://cplusplus.github.io/LWG/issue2991">(i)</a></sup></td>
-<td><a href="lwg-active.html#LEWG">LEWG</a></td>
-<td>22.6.3.2 [variant.ctor]</td>
-<td><code>variant</code> copy constructor missing <code>noexcept(<i>see below</i>)</code></td>
-<td>Yes</td>
-<td></td>
-<td></td>
 </tr>
 <tr>
 <td id="2307"><a href="lwg-active.html#2307" title="Should the Standard Library use explicit only when necessary? (Status: LEWG)">2307</a><sup><a href="https://cplusplus.github.io/LWG/issue2307">(i)</a></sup></td>
